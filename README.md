@@ -11,10 +11,10 @@ Following devices have been tested with on/off function :
  - [x] Use with Gladys as binary device to switch on/off
  - [ ] Auto-detect devices
  - [ ] Add Gladys Awox scan option
- - [ ] Manage RGB skill
+ - [x] Manage RGB skill
  - [x] Manage ligth intensity
  - [ ] Add Gladys box to manage color/brightness
 
 ## Limitations
  - Do not work when [Gladys-bluetooth](https://github.com/GladysProject/gladys-bluetooth) is enabled
- - Only one message / one device at a time 
+ - Only one message / one device at a time
