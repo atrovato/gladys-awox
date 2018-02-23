@@ -12,7 +12,7 @@ Following devices have been tested with on/off function :
  - [ ] Auto-detect devices
  - [ ] Add Gladys Awox scan option
  - [ ] Manage RGB skill
- - [ ] Manage ligth intensity
+ - [x] Manage ligth intensity
  - [ ] Add Gladys box to manage color/brightness
 
 ## Limitations
