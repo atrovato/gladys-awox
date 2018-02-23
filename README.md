@@ -17,3 +17,4 @@ Following devices have been tested with on/off function :
 
 ## Limitations
  - Do not work when [Gladys-bluetooth](https://github.com/GladysProject/gladys-bluetooth) is enabled
+ - Only one message / one device at a time 
