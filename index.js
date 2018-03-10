@@ -30,6 +30,7 @@ module.exports = function(sails) {
     });
 
     return {
-        exec: exec
+        exec: exec,
+        setup: install
     };
 };
