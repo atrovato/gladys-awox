@@ -1,6 +1,13 @@
 # gladys-awox
 Managing of Awox devices with Gladys
 
+## Installation
+To allow the node process to access bluetooth withou sudo rights, execute : 
+
+```
+sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
+```
+
 ## Compatibility
 Following devices have been tested with on/off function :
  * SmartLIGHT c7
@@ -9,7 +16,7 @@ Following devices have been tested with on/off function :
 ## Awaited functionalities
  - [x] Swith on/off
  - [x] Use with Gladys as binary device to switch on/off
- - [ ] Auto-detect devices
+ - [X] Auto-detect devices
  - [ ] Add Gladys Awox scan option
  - [x] Manage RGB skill
  - [x] Manage ligth intensity
