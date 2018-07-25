@@ -20,7 +20,7 @@ Following devices have been tested :
  - [ ] Add Gladys Awox scan option
  - [x] Manage RGB skill
  - [x] Manage ligth intensity
- - ~[ ] Add Gladys box to manage color/brightness~
+ - [ ] ~Add Gladys box to manage color/brightness~
 
 ## Limitations
  - Do not work when [Gladys-bluetooth](https://github.com/GladysProject/gladys-bluetooth) is enabled
