@@ -1,5 +1,5 @@
 # gladys-awox
-Managing of Awox devices with Gladys
+Managing Awox light devices with Gladys
 
 ## Installation
 To allow the node process to access bluetooth withou sudo rights, execute : 
