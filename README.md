@@ -9,9 +9,9 @@ sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
 
 ## Compatibility
-Following devices have been tested with on/off function :
- * SmartLIGHT c7
- * SmartLIGHT w9
+Following devices have been tested :
+ * SmartLIGHT c7 : on/off, brightness, color
+ * SmartLIGHT w9 : on/off, brightness
 
 ## Awaited functionalities
  - [x] Swith on/off
@@ -20,7 +20,7 @@ Following devices have been tested with on/off function :
  - [ ] Add Gladys Awox scan option
  - [x] Manage RGB skill
  - [x] Manage ligth intensity
- - [ ] Add Gladys box to manage color/brightness
+ - ~[ ] Add Gladys box to manage color/brightness~
 
 ## Limitations
  - Do not work when [Gladys-bluetooth](https://github.com/GladysProject/gladys-bluetooth) is enabled
