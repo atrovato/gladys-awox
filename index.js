@@ -25,7 +25,11 @@ module.exports = function(sails) {
         noble.on('scanStop', function () {
             sails.log.info('Awox scan stopped');
             shared.scanning = false;
-            shared.scanTimer = null;
+
+            if (shared.scanTimer) {
+                clearTimeout(shared.scanTimer);
+                shared.scanTimer = null;
+            }
         });
     });
 
