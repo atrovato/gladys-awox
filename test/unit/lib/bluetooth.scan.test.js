@@ -118,6 +118,32 @@ describe('Scan bluetooth peripherals', function() {
         nobleMock.emit('discover', { address : 'Peripheral 6' });
     });
 
+    it('Bluetooth looks for 1 wanted device, timer disabled', function (done) {
+        var requestPeripherals = new Map();
+        requestPeripherals.set('Peripheral 4', { address: 'Peripheral 4' });
+
+        awoxScan(requestPeripherals).then((result) => {
+            assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
+            assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
+            assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
+            assert.isNotOk(shared.scanning, 'Scanner timeout should have be cleared');
+            assert.equal(0, shared.scanForNb, 'No other peripheral waited anymore');
+
+            var expectedResult = new Map();
+            expectedResult.set('Peripheral 4', { address: 'Peripheral 4' });
+            assert.deepEqual(result, expectedResult, 'Not expected devices found');
+            done();
+        }).catch((result) => {
+            done('Should not have fail : ' + result);
+        });
+
+        shared.scanTimer = null;
+        nobleMock.emit('discover', { address : 'Peripheral 4' });
+        nobleMock.emit('discover', { address : 'Peripheral 5' });
+        clock.tick(shared.scanTimeout);
+        nobleMock.emit('discover', { address : 'Peripheral 6' });
+    });
+
     it('Bluetooth looks for 2 wanted devices, only one found', function (done) {
         var requestPeripherals = new Map();;
         requestPeripherals.set('Peripheral 8', { address: 'Peripheral 8' });
