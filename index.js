@@ -16,21 +16,6 @@ module.exports = function(sails) {
                 noble.stopScanning();
             }
         });
-
-        noble.on('scanStart', function () {
-            sails.log.info('Awox scan started');
-            shared.scanning = true;
-        });
-
-        noble.on('scanStop', function () {
-            sails.log.info('Awox scan stopped');
-            shared.scanning = false;
-
-            if (shared.scanTimer) {
-                clearTimeout(shared.scanTimer);
-                shared.scanTimer = null;
-            }
-        });
     });
 
     return {

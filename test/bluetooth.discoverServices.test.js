@@ -4,15 +4,29 @@ const assert = chai.assert;
 
 describe('Discover bluetooth services', function() {
 
-    it('Discover peripheral services with success', function (done) {
-        var peripheral = {
+    var peripheral;
+    var throwError;
+
+    beforeEach(function() {
+        throwError = false;
+
+        peripheral = {
             discovered: false,
             discoverServices: function(service, callback) {
                 assert.strictEqual(service, '[fff0]', 'Expected requested service is not valid');
                 this.discovered = true;
-                callback(null, 'service');
+
+                if (throwError) {
+                    callback('Error', null);
+                } else {
+                    callback(null, 'service');
+                }
             }
         };
+    });
+
+    it('Discover peripheral services with success', function (done) {
+        throwError = false;
 
         awoxDiscoverServices(peripheral).then((result) => {
             var expectedResult = [ peripheral, 'service' ];
@@ -25,14 +39,7 @@ describe('Discover bluetooth services', function() {
     });
 
     it('Discover peripheral services with error', function (done) {
-        var peripheral = {
-            discovered: false,
-            discoverServices: function(service, callback) {
-                assert.strictEqual(service, '[fff0]', 'Expected requested service is not valid');
-                this.discovered = true;
-                callback('Error', null);
-            }
-        };
+        throwError = true;
 
         awoxDiscoverServices(peripheral).then((result) => {
             done('Should have fail');

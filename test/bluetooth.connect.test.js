@@ -4,14 +4,28 @@ const assert = chai.assert;
 
 describe('Connect bluetooth peripherals', function() {
 
-    it('Connect to peripheral with success', function (done) {
-        var peripheral = {
+    var peripheral;
+    var throwError;
+
+    beforeEach(function() {
+        throwError = false;
+
+        peripheral = {
             connected: false,
             connect: function(callback) {
                 this.connected = true;
-                callback();
+
+                if (throwError) {
+                    callback('Error');
+                } else {
+                    callback();
+                }
             }
         };
+    });
+
+    it('Connect to peripheral with success', function (done) {
+        throwError = false;
 
         awoxConnect(peripheral).then((result) => {
             assert.strictEqual(result, peripheral, 'Expected peripheral should same as input');
@@ -23,13 +37,7 @@ describe('Connect bluetooth peripherals', function() {
     });
 
     it('Connect to peripheral with error', function (done) {
-        var peripheral = {
-            connected: false,
-            connect: function(callback) {
-                this.connected = true;
-                callback('Error');
-            }
-        };
+        throwError = true;
 
         awoxConnect(peripheral).then((result) => {
             done('Should have fail');
