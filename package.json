@@ -4,7 +4,7 @@
   "description": "Awox device manager for Gladys",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- -u exports --reporter spec ./test/**/*.js"
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- -u exports --reporter spec ./test/**/*.test.js"
   },
   "keywords": [
     "gladys",

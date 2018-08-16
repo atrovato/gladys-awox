@@ -23,7 +23,7 @@ nobleMock.stopScanning = function() {
 
 var awoxScan = proxyquire('../../../lib/bluetooth.scan.js', { 
     'noble': nobleMock,
-    '../lib/shared.js': shared
+    './shared.js': shared
 });
 
 describe('Scan bluetooth peripherals', function() {
