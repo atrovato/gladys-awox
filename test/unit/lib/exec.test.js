@@ -53,6 +53,9 @@ describe('Gladys device exec', function() {
             deviceType : {
                 identifier: 'Peripheral 1',
                 type: 'unknown'
+            },
+            state : {
+                value : 3
             }
         };
 
@@ -491,14 +494,14 @@ describe('Gladys device exec', function() {
     });
 
     it('No peripherals found', function(done) {
-        expectedCommand = shared.commands.on.slice(0);
+        expectedCommand = shared.commands.off.slice(0);
         sliceIndex = expectedCommand.length - 1;
-        foundPeripherals = null;
+        foundPeripherals = false;
 
         var deviceInfo = {
             deviceType : {
                 identifier: 'Peripheral 1',
-                type: 'switch'
+                type: 'binary'
             },
             state : {
                 value : 0
@@ -514,7 +517,7 @@ describe('Gladys device exec', function() {
     });
 
     it('Expected peripheral not found', function(done) {
-        expectedCommand = shared.commands.on.slice(0);
+        expectedCommand = shared.commands.off.slice(0);
         sliceIndex = expectedCommand.length - 1;
         foundPeripherals = new Map();
         foundPeripherals.set('unknow', null);
@@ -522,7 +525,7 @@ describe('Gladys device exec', function() {
         var deviceInfo = {
             deviceType : {
                 identifier: 'Peripheral 1',
-                type: 'switch'
+                type: 'binary'
             },
             state : {
                 value : 0
