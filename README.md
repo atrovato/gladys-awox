@@ -22,7 +22,8 @@ Following devices have been tested :
  - [X] Auto-detect devices
  - [x] Manage RGB skill
  - [x] Manage ligth intensity
- - [ ] Reset default light state
+ - [x] Reset default light state
+ - [ ] White color (from cold to hot)
 
 ## Limitations
  - Do not work when [Gladys-bluetooth](https://github.com/GladysProject/gladys-bluetooth) is enabled
