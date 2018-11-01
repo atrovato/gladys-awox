@@ -48,11 +48,11 @@ describe('Gladys device exec', function() {
     foundPeripherals = undefined;
   });
 
-  it('Device type not managed', function(done) {
+  it('Device identifier not managed', function(done) {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'unknown'
+        deviceTypeIdentifier: 'unknown'
       },
       state : {
         value : 3
@@ -60,18 +60,18 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done('Should have fail');
-      }).catch((result) => {
+      }).catch(() => {
         done();
       });
   });
 
-  it('Device type is binary with not managed value', function(done) {
+  it('Device identifier is binary with not managed value', function(done) {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'binary'
+        deviceTypeIdentifier: 'binary'
       },
       state : {
         value : 3
@@ -79,21 +79,21 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done('Should have fail');
-      }).catch((result) => {
+      }).catch(() => {
         done();
       });
   });
 
-  it('Device type is binary with value = 0', function(done) {
+  it('Device identifier is switch with value = 0', function(done) {
     expectedCommand = shared.commands.off.slice(0);
     sliceIndex = expectedCommand.length - 1;
 
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'binary'
+        deviceTypeIdentifier: 'switch'
       },
       state : {
         value : 0
@@ -101,21 +101,21 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with value = 1', function(done) {
+  it('Device identifier is switch with value = 1', function(done) {
     expectedCommand = shared.commands.on.slice(0);
     sliceIndex = expectedCommand.length - 1;
 
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'binary'
+        deviceTypeIdentifier: 'switch'
       },
       state : {
         value : 1
@@ -123,14 +123,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 0 (black / min)', function(done) {
+  it('Device identifier is color with value = 0 (black / min)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[10] = 0x00;
     expectedCommand[11] = 0x00;
@@ -140,7 +140,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 0
@@ -148,14 +148,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 16.777.215 (white / max)', function(done) {
+  it('Device identifier is color with value = 16.777.215 (white / max)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[09] = 0xFF;
     expectedCommand[10] = 0xFF;
@@ -164,7 +164,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 16777215
@@ -172,14 +172,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 16711680 (red)', function(done) {
+  it('Device identifier is color with value = 16711680 (red)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[09] = 0xFF;
     expectedCommand[10] = 0x00;
@@ -189,7 +189,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 16711680
@@ -197,14 +197,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 65280 (green)', function(done) {
+  it('Device identifier is color with value = 65280 (green)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[09] = 0x00;
     expectedCommand[10] = 0xFF;
@@ -213,7 +213,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 65280
@@ -221,14 +221,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 255 (blue)', function(done) {
+  it('Device identifier is color with value = 255 (blue)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[09] = 0x00;
     expectedCommand[10] = 0x00;
@@ -238,7 +238,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 255
@@ -246,14 +246,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 16776960 (yellow)', function(done) {
+  it('Device identifier is color with value = 16776960 (yellow)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[09] = 0xFF;
     expectedCommand[10] = 0xFF;
@@ -262,7 +262,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 16776960
@@ -270,14 +270,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 65535 (cyan)', function(done) {
+  it('Device identifier is color with value = 65535 (cyan)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[09] = 0x00;
     expectedCommand[10] = 0xFF;
@@ -287,7 +287,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 65535
@@ -295,14 +295,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 16711935 (magenta)', function(done) {
+  it('Device identifier is color with value = 16711935 (magenta)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[09] = 0xFF;
     expectedCommand[10] = 0x00;
@@ -312,7 +312,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 16711935
@@ -320,14 +320,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is binary with color = 8355711 (grey)', function(done) {
+  it('Device identifier is color with value = 8355711 (grey)', function(done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[09] = 0x7F;
     expectedCommand[10] = 0x7F;
@@ -337,7 +337,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'color'
+        deviceTypeIdentifier: 'color'
       },
       state : {
         value : 8355711
@@ -345,20 +345,20 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is manual', function(done) {
+  it('Device identifier is manual', function(done) {
     expectedCommand = 'MANUAL COMMAND';
 
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'manual'
+        deviceTypeIdentifier: 'manual'
       },
       state : {
         value : 'MANUAL COMMAND'
@@ -366,14 +366,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is brightness with level = 0% (min / 600)', function(done) {
+  it('Device identifier is brightness with level = 0% (min / 600)', function(done) {
     expectedCommand = shared.commands.brightness.slice(0);
     expectedCommand[8] = 0x02;
     expectedCommand[9] = 0x58;
@@ -382,7 +382,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'brightness'
+        deviceTypeIdentifier: 'brightness'
       },
       state : {
         value : 0
@@ -390,14 +390,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is brightness with level = 25% (1213)', function(done) {
+  it('Device identifier is brightness with level = 25% (1213)', function(done) {
     expectedCommand = shared.commands.brightness.slice(0);
     expectedCommand[8] = 0x04;
     expectedCommand[9] = 0xBD;
@@ -406,7 +406,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'brightness'
+        deviceTypeIdentifier: 'brightness'
       },
       state : {
         value : 25
@@ -414,14 +414,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is brightness with level = 50% (1825)', function(done) {
+  it('Device identifier is brightness with level = 50% (1825)', function(done) {
     expectedCommand = shared.commands.brightness.slice(0);
     expectedCommand[8] = 0x07;
     expectedCommand[9] = 0x21;
@@ -430,7 +430,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'brightness'
+        deviceTypeIdentifier: 'brightness'
       },
       state : {
         value : 50
@@ -438,14 +438,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is brightness with level = 75% (2438)', function(done) {
+  it('Device identifier is brightness with level = 75% (2438)', function(done) {
     expectedCommand = shared.commands.brightness.slice(0);
     expectedCommand[8] = 0x09;
     expectedCommand[9] = 0x86;
@@ -454,7 +454,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'brightness'
+        deviceTypeIdentifier: 'brightness'
       },
       state : {
         value : 75
@@ -462,14 +462,14 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
       });
   });
 
-  it('Device type is brightness with level = 100% (max / 3050)', function(done) {
+  it('Device identifier is brightness with level = 100% (max / 3050)', function(done) {
     expectedCommand = shared.commands.brightness.slice(0);
     expectedCommand[8] = 0x0B;
     expectedCommand[9] = 0xEA;
@@ -478,7 +478,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'brightness'
+        deviceTypeIdentifier: 'brightness'
       },
       state : {
         value : 100
@@ -486,7 +486,7 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done();
       }).catch((result) => {
         done('Should not have fail : ' + result);
@@ -501,7 +501,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'binary'
+        deviceTypeIdentifier: 'switch'
       },
       state : {
         value : 0
@@ -509,9 +509,9 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done('Should have fail');
-      }).catch((result) => {
+      }).catch(() => {
         done();
       });
   });
@@ -525,7 +525,7 @@ describe('Gladys device exec', function() {
     var deviceInfo = {
       deviceType : {
         identifier: 'Peripheral 1',
-        type: 'binary'
+        deviceTypeIdentifier: 'switch'
       },
       state : {
         value : 0
@@ -533,9 +533,9 @@ describe('Gladys device exec', function() {
     };
 
     exec(deviceInfo)
-      .then((result) => {
+      .then(() => {
         done('Should have fail');
-      }).catch((result) => {
+      }).catch(() => {
         done();
       });
   });
