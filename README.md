@@ -2,6 +2,12 @@
 Managing Awox light devices with Gladys
 
 ## Installation
+Install Raspberry Linux Bluetooth dependencies :
+
+```
+sudo apt-get install bluetooth bluez libbluetooth-dev libudev-dev 
+```
+
 To allow the node process to access bluetooth withou sudo rights, execute : 
 
 ```
