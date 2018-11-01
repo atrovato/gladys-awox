@@ -1,2 +1,4 @@
 # Visual Studio Code configuration
 .vscode/settings.json
+/node_modules
+/coverage

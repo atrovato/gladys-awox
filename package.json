@@ -1,6 +1,6 @@
 {
   "name": "gladys-awox",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "Awox device manager for Gladys",
   "main": "index.js",
   "scripts": {
