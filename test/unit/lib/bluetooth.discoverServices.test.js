@@ -13,7 +13,7 @@ describe('Discover bluetooth services', function () {
     peripheral = {
       discovered: false,
       discoverServices: function (service, callback) {
-        assert.strictEqual(service, '[fff0]', 'Expected requested service is not valid');
+        assert.deepEqual(service, ['fff0'], 'Expected requested service is not valid');
         this.discovered = true;
 
         if (throwError) {

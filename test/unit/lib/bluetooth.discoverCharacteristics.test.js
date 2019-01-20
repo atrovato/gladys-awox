@@ -21,7 +21,7 @@ describe('Discover bluetooth characteristics', function () {
     service = {
       discovered: false,
       discoverCharacteristics: function (characteristic, callback) {
-        assert.strictEqual(characteristic, '[fff1]', 'Expected requested characteristic is not valid');
+        assert.deepEqual(characteristic, ['fff1'], 'Expected requested characteristic is not valid');
         this.discovered = true;
 
         if (throwError) {
@@ -54,7 +54,7 @@ describe('Discover bluetooth characteristics', function () {
       done('Should have fail');
     }).catch(() => {
       assert.isOk(service.discovered, 'Discovered tag should be true');
-      assert.isOk(peripheral.connected, 'Peripheral should be disconnected');
+      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
     });
   });
