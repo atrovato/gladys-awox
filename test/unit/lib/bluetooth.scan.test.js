@@ -9,33 +9,33 @@ var clock;
 var shared = {
   scanTimeout: 15,
   bluetoothOn: true,
-  scanTimer : null
+  scanTimer: null
 };
 var nobleMock = new EventEmitter();
 nobleMock.startScanning = function (service, duplicate, callback) {
   assert.deepEqual(service, ['fff0'], 'Invalid service to scan');
   callback();
 };
-nobleMock.stopScanning = function() {
+nobleMock.stopScanning = function () {
   console.log('Blutetooth stops scanning');
   this.emit('scanStop');
 };
 
-var awoxScan = proxyquire('../../../lib/bluetooth.scan.js', { 
+var awoxScan = proxyquire('../../../lib/bluetooth.scan.js', {
   'noble': nobleMock,
   './shared.js': shared
 });
 
-describe('Scan bluetooth peripherals', function() {
+describe('Scan bluetooth peripherals', function () {
 
-  beforeEach(function() {
+  beforeEach(function () {
     clock = sinon.useFakeTimers();
     shared.bluetoothOn = true;
     shared.scanTimer = null;
     shared.scanForNb = 0;
   });
 
-  afterEach(function() {
+  afterEach(function () {
     shared.bluetoothOn = true;
     shared.scanTimer = null;
     shared.scanForNb = 0;
@@ -45,7 +45,7 @@ describe('Scan bluetooth peripherals', function() {
   it('Bluetooth is disabled', function (done) {
     shared.bluetoothOn = false;
 
-    awoxScan().then(() => {
+    awoxScan(['fff0']).then(() => {
       done('Should have fail');
     }).catch((result) => {
       assert.isNull(shared.scanTimer, 'Scanner timeout should not have been initialized');
@@ -54,7 +54,7 @@ describe('Scan bluetooth peripherals', function() {
   });
 
   it('Bluetooth scans no devices', function (done) {
-    awoxScan().then((result) => {
+    awoxScan(['fff0']).then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -70,7 +70,7 @@ describe('Scan bluetooth peripherals', function() {
   });
 
   it('Bluetooth scans 2 devices', function (done) {
-    awoxScan().then((result) => {
+    awoxScan(['fff0']).then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -87,17 +87,17 @@ describe('Scan bluetooth peripherals', function() {
       done('Should not have fail : ' + result);
     });
 
-    nobleMock.emit('discover', { address : 'Peripheral 1' });
-    nobleMock.emit('discover', { address : 'Peripheral 2' });
+    nobleMock.emit('discover', { address: 'Peripheral 1' });
+    nobleMock.emit('discover', { address: 'Peripheral 2' });
     clock.tick(shared.scanTimeout);
-    nobleMock.emit('discover', { address : 'Peripheral 3' });
+    nobleMock.emit('discover', { address: 'Peripheral 3' });
   });
 
   it('Bluetooth looks for 1 wanted device', function (done) {
     var requestPeripherals = new Map();
     requestPeripherals.set('Peripheral 4', { address: 'Peripheral 4' });
 
-    awoxScan(requestPeripherals).then((result) => {
+    awoxScan(['fff0'], requestPeripherals).then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -112,17 +112,17 @@ describe('Scan bluetooth peripherals', function() {
       done('Should not have fail : ' + result);
     });
 
-    nobleMock.emit('discover', { address : 'Peripheral 4' });
-    nobleMock.emit('discover', { address : 'Peripheral 5' });
+    nobleMock.emit('discover', { address: 'Peripheral 4' });
+    nobleMock.emit('discover', { address: 'Peripheral 5' });
     clock.tick(shared.scanTimeout);
-    nobleMock.emit('discover', { address : 'Peripheral 6' });
+    nobleMock.emit('discover', { address: 'Peripheral 6' });
   });
 
   it('Bluetooth looks for 1 wanted device, timer disabled', function (done) {
     var requestPeripherals = new Map();
     requestPeripherals.set('Peripheral 4', { address: 'Peripheral 4' });
 
-    awoxScan(requestPeripherals).then((result) => {
+    awoxScan(['fff0'], requestPeripherals).then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -138,10 +138,10 @@ describe('Scan bluetooth peripherals', function() {
     });
 
     shared.scanTimer = null;
-    nobleMock.emit('discover', { address : 'Peripheral 4' });
-    nobleMock.emit('discover', { address : 'Peripheral 5' });
+    nobleMock.emit('discover', { address: 'Peripheral 4' });
+    nobleMock.emit('discover', { address: 'Peripheral 5' });
     clock.tick(shared.scanTimeout);
-    nobleMock.emit('discover', { address : 'Peripheral 6' });
+    nobleMock.emit('discover', { address: 'Peripheral 6' });
   });
 
   it('Bluetooth looks for 2 wanted devices, only one found', function (done) {
@@ -149,7 +149,7 @@ describe('Scan bluetooth peripherals', function() {
     requestPeripherals.set('Peripheral 8', { address: 'Peripheral 8' });
     requestPeripherals.set('Peripheral 9', { address: 'Peripheral 9' });
 
-    awoxScan(requestPeripherals).then((result) => {
+    awoxScan(['fff0'], requestPeripherals).then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -164,10 +164,10 @@ describe('Scan bluetooth peripherals', function() {
       done('Should not have fail : ' + result);
     });
 
-    nobleMock.emit('discover', { address : 'Peripheral 7' });
-    nobleMock.emit('discover', { address : 'Peripheral 8' });
+    nobleMock.emit('discover', { address: 'Peripheral 7' });
+    nobleMock.emit('discover', { address: 'Peripheral 8' });
     clock.tick(shared.scanTimeout);
-    nobleMock.emit('discover', { address : 'Peripheral 9' });
+    nobleMock.emit('discover', { address: 'Peripheral 9' });
   });
 
   it('Bluetooth looks for 2 wanted devices separately', function (done) {
@@ -175,7 +175,7 @@ describe('Scan bluetooth peripherals', function() {
       var requestPeripherals = new Map();
       requestPeripherals.set('Peripheral 10', { address: 'Peripheral 10' });
 
-      return awoxScan(requestPeripherals).then((result) => {
+      return awoxScan(['fff0'], requestPeripherals).then((result) => {
         assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
 
         var expectedResult = new Map();
@@ -191,7 +191,7 @@ describe('Scan bluetooth peripherals', function() {
       var requestPeripherals = new Map();
       requestPeripherals.set('Peripheral 11', { address: 'Peripheral 11' });
 
-      return awoxScan(requestPeripherals).then((result) => {
+      return awoxScan(['fff0'], requestPeripherals).then((result) => {
         assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
 
         var expectedResult = new Map();
@@ -203,8 +203,8 @@ describe('Scan bluetooth peripherals', function() {
       });
     });
 
-    Promise.all([ promiseRun1, promiseRun2 ])
-      .then((result) => {
+    Promise.all([promiseRun1, promiseRun2])
+      .then(() => {
         assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
         assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
         assert.isNotOk(shared.scanning, 'Scanner timeout should have be cleared');
@@ -214,10 +214,10 @@ describe('Scan bluetooth peripherals', function() {
         done(result);
       });
 
-    nobleMock.emit('discover', { address : 'Peripheral 10' });
+    nobleMock.emit('discover', { address: 'Peripheral 10' });
     clock.tick(10);
-    nobleMock.emit('discover', { address : 'Peripheral 11' });
+    nobleMock.emit('discover', { address: 'Peripheral 11' });
     clock.tick(50);
-    nobleMock.emit('discover', { address : 'Peripheral 12' });
+    nobleMock.emit('discover', { address: 'Peripheral 12' });
   });
 });
