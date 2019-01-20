@@ -45,7 +45,7 @@ describe('Scan bluetooth peripherals', function() {
   it('Bluetooth is disabled', function (done) {
     shared.bluetoothOn = false;
 
-    awoxScan().then((result) => {
+    awoxScan().then(() => {
       done('Should have fail');
     }).catch((result) => {
       assert.isNull(shared.scanTimer, 'Scanner timeout should not have been initialized');

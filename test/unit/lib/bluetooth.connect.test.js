@@ -28,7 +28,7 @@ describe('Connect bluetooth peripherals', function() {
     throwError = false;
 
     awoxConnect(peripheral).then((result) => {
-      assert.strictEqual(result, peripheral, 'Expected peripheral should same as input');
+      assert.strictEqual(result.peripheral, peripheral, 'Expected peripheral should same as input');
       assert.isOk(peripheral.connected, 'Connected tag should be true');
       done();
     }).catch((result) => {
@@ -39,9 +39,9 @@ describe('Connect bluetooth peripherals', function() {
   it('Connect to peripheral with error', function (done) {
     throwError = true;
 
-    awoxConnect(peripheral).then((result) => {
+    awoxConnect(peripheral).then((reult) => {
       done('Should have fail');
-    }).catch((result) => {
+    }).catch(() => {
       assert.isOk(peripheral.connected, 'Connected tag should be true');
       done();
     });

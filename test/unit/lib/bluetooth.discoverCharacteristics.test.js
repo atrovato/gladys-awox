@@ -2,25 +2,25 @@ const awoxDiscoverCharacteristics = require('../../../lib/bluetooth.discoverChar
 const chai = require('chai');
 const assert = chai.assert;
 
-describe('Discover bluetooth characteristics', function() {
+describe('Discover bluetooth characteristics', function () {
 
   var peripheral;
   var service;
   var throwError;
 
-  beforeEach(function() {
+  beforeEach(function () {
     throwError = false;
 
     peripheral = {
       connected: true,
-      disconnect: function() {
+      disconnect: function () {
         this.connected = false;
       }
     };
 
     service = {
       discovered: false,
-      discoverCharacteristics: function(characteristic, callback) {
+      discoverCharacteristics: function (characteristic, callback) {
         assert.strictEqual(characteristic, '[fff1]', 'Expected requested characteristic is not valid');
         this.discovered = true;
 
@@ -36,8 +36,8 @@ describe('Discover bluetooth characteristics', function() {
   it('Discover service characteristics with success', function (done) {
     throwError = false;
 
-    awoxDiscoverCharacteristics(peripheral, [ service ]).then((result) => {
-      var expectedResult = [ peripheral, 'characteristic' ];
+    awoxDiscoverCharacteristics({ peripheral: peripheral, services: [service] }).then((result) => {
+      var expectedResult = { peripheral: peripheral, services: [service], characteristics: 'characteristic' };
       assert.deepEqual(result, expectedResult, 'Not expected result');
       assert.isOk(service.discovered, 'Discovered tag should be true');
       assert.isOk(peripheral.connected, 'Peripheral should be disconnected');
@@ -50,9 +50,9 @@ describe('Discover bluetooth characteristics', function() {
   it('Discover service characteristics with error', function (done) {
     throwError = true;
 
-    awoxDiscoverCharacteristics(peripheral, [ service ]).then((result) => {
+    awoxDiscoverCharacteristics({ peripheral: peripheral, services: [service] }).then(() => {
       done('Should have fail');
-    }).catch((result) => {
+    }).catch(() => {
       assert.isOk(service.discovered, 'Discovered tag should be true');
       assert.isOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
@@ -60,27 +60,27 @@ describe('Discover bluetooth characteristics', function() {
   });
 
   it('Discover service characteristics without services (undefined)', function (done) {
-    awoxDiscoverCharacteristics(peripheral, undefined).then((result) => {
+    awoxDiscoverCharacteristics({ peripheral: peripheral, services: undefined }).then(() => {
       done('Should have fail');
-    }).catch((result) => {
+    }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
     });
   });
 
   it('Discover service characteristics without services (null)', function (done) {
-    awoxDiscoverCharacteristics(peripheral, null).then((result) => {
+    awoxDiscoverCharacteristics({ peripheral: peripheral, services: null }).then(() => {
       done('Should have fail');
-    }).catch((result) => {
+    }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
     });
   });
 
   it('Discover service characteristics without services (empty)', function (done) {
-    awoxDiscoverCharacteristics(peripheral, []).then((result) => {
+    awoxDiscoverCharacteristics({ peripheral: peripheral, services: [] }).then(() => {
       done('Should have fail');
-    }).catch((result) => {
+    }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
     });

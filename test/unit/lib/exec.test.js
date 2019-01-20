@@ -13,15 +13,15 @@ var shared = {
 var connectMock = function (peripheral) {
   return Promise.resolve(peripheral);
 };
-var discoverServicesMock = function (peripheral) {
-  return Promise.resolve([peripheral, peripheral]);
+var discoverServicesMock = function (device) {
+  return Promise.resolve({});
 };
-var discoverCharacteristicsMock = function (peripheral, service) {
-  return Promise.resolve([peripheral, service]);
+var discoverCharacteristicsMock = function (device) {
+  return Promise.resolve({});
 };
-var sendMock = function (peripheral, characteristic, command) {
-  assert.deepEqual(command.slice(0, sliceIndex), expectedCommand.slice(0, sliceIndex), 'Not expected command sent');
-  return Promise.resolve(peripheral);
+var sendMock = function (device) {
+  assert.deepEqual(device.command.slice(0, sliceIndex), expectedCommand.slice(0, sliceIndex), 'Not expected command sent');
+  return Promise.resolve({});
 };
 var scanMock = function (peripheral) {
   if (foundPeripherals !== undefined) {
