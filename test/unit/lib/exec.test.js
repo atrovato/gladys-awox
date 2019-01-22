@@ -23,7 +23,7 @@ var sendMock = function (device) {
   assert.deepEqual(device.command.slice(0, sliceIndex), expectedCommand.slice(0, sliceIndex), 'Not expected command sent');
   return Promise.resolve({});
 };
-var scanMock = function (uuids, peripheral) {
+var scanMock = function (peripheral) {
   if (foundPeripherals !== undefined) {
     return Promise.resolve(foundPeripherals);
   } else {

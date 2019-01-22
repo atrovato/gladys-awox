@@ -13,7 +13,7 @@ var shared = {
 };
 var nobleMock = new EventEmitter();
 nobleMock.startScanning = function (service, duplicate, callback) {
-  assert.deepEqual(service, ['fff0'], 'Invalid service to scan');
+  assert.deepEqual(service, [], 'Invalid service to scan');
   callback();
 };
 nobleMock.stopScanning = function () {
@@ -45,7 +45,7 @@ describe('Scan bluetooth peripherals', function () {
   it('Bluetooth is disabled', function (done) {
     shared.bluetoothOn = false;
 
-    awoxScan(['fff0']).then(() => {
+    awoxScan().then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isNull(shared.scanTimer, 'Scanner timeout should not have been initialized');
@@ -54,7 +54,7 @@ describe('Scan bluetooth peripherals', function () {
   });
 
   it('Bluetooth scans no devices', function (done) {
-    awoxScan(['fff0']).then((result) => {
+    awoxScan().then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -70,7 +70,7 @@ describe('Scan bluetooth peripherals', function () {
   });
 
   it('Bluetooth scans 2 devices', function (done) {
-    awoxScan(['fff0']).then((result) => {
+    awoxScan().then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -97,7 +97,7 @@ describe('Scan bluetooth peripherals', function () {
     var requestPeripherals = new Map();
     requestPeripherals.set('Peripheral 4', { address: 'Peripheral 4' });
 
-    awoxScan(['fff0'], requestPeripherals).then((result) => {
+    awoxScan(requestPeripherals).then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -122,7 +122,7 @@ describe('Scan bluetooth peripherals', function () {
     var requestPeripherals = new Map();
     requestPeripherals.set('Peripheral 4', { address: 'Peripheral 4' });
 
-    awoxScan(['fff0'], requestPeripherals).then((result) => {
+    awoxScan(requestPeripherals).then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -149,7 +149,7 @@ describe('Scan bluetooth peripherals', function () {
     requestPeripherals.set('Peripheral 8', { address: 'Peripheral 8' });
     requestPeripherals.set('Peripheral 9', { address: 'Peripheral 9' });
 
-    awoxScan(['fff0'], requestPeripherals).then((result) => {
+    awoxScan(requestPeripherals).then((result) => {
       assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
       assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
       assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
@@ -175,7 +175,7 @@ describe('Scan bluetooth peripherals', function () {
       var requestPeripherals = new Map();
       requestPeripherals.set('Peripheral 10', { address: 'Peripheral 10' });
 
-      return awoxScan(['fff0'], requestPeripherals).then((result) => {
+      return awoxScan(requestPeripherals).then((result) => {
         assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
 
         var expectedResult = new Map();
@@ -191,7 +191,7 @@ describe('Scan bluetooth peripherals', function () {
       var requestPeripherals = new Map();
       requestPeripherals.set('Peripheral 11', { address: 'Peripheral 11' });
 
-      return awoxScan(['fff0'], requestPeripherals).then((result) => {
+      return awoxScan(requestPeripherals).then((result) => {
         assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
 
         var expectedResult = new Map();

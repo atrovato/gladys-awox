@@ -35,7 +35,7 @@ var checkRejectionCondition = function (step) {
   }
 };
 
-var scanMock = function (uuids, peripherals) {
+var scanMock = function (peripherals) {
   scanDone = true;
   return checkRejectionCondition('scan').then(() => {
     return Promise.resolve(foundPeripherals);
