@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/atrovato/gladys-awox#readme",
   "dependencies": {
+    "bluebird": "^3.5.3",
     "noble": "^1.9.1"
   },
   "devDependencies": {
