@@ -11,7 +11,7 @@ var shared = {
   scanTimer : null
 };
 
-var scanMock = function() {
+var scanMock = function(uuids, peripherals) {
   return Promise.resolve(foundPeripherals);
 };
 

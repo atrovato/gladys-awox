@@ -28,7 +28,7 @@ describe('Discover bluetooth services', function () {
   it('Discover peripheral services with success', function (done) {
     throwError = false;
 
-    awoxDiscoverServices({ peripheral: peripheral }).then((result) => {
+    awoxDiscoverServices(['fff0'], { peripheral: peripheral }).then((result) => {
       var expectedResult = { peripheral: peripheral, services: 'service' };
       assert.deepEqual(result, expectedResult, 'Not expected result');
       assert.isOk(peripheral.discovered, 'Discovered tag should be true');
@@ -41,7 +41,7 @@ describe('Discover bluetooth services', function () {
   it('Discover peripheral services with error', function (done) {
     throwError = true;
 
-    awoxDiscoverServices({ peripheral: peripheral }).then(() => {
+    awoxDiscoverServices(['fff0'], { peripheral: peripheral }).then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isOk(peripheral.discovered, 'Discovered tag should be true');

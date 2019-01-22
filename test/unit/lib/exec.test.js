@@ -13,17 +13,17 @@ var shared = {
 var connectMock = function (peripheral) {
   return Promise.resolve(peripheral);
 };
-var discoverServicesMock = function (device) {
+var discoverServicesMock = function (uuids, device) {
   return Promise.resolve({});
 };
-var discoverCharacteristicsMock = function (device) {
+var discoverCharacteristicsMock = function (uuids, device) {
   return Promise.resolve({});
 };
 var sendMock = function (device) {
   assert.deepEqual(device.command.slice(0, sliceIndex), expectedCommand.slice(0, sliceIndex), 'Not expected command sent');
   return Promise.resolve({});
 };
-var scanMock = function (peripheral) {
+var scanMock = function (uuids, peripheral) {
   if (foundPeripherals !== undefined) {
     return Promise.resolve(foundPeripherals);
   } else {
