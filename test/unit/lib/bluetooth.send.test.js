@@ -35,7 +35,7 @@ describe('Sending bluetooth packets', function () {
         this.sent = true;
 
         if (throwTimeout) {
-          clock.tick(10000);
+          clock.tick(100000);
         } else if (throwError) {
           callback('Error');
         } else {
