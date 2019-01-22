@@ -1,97 +1,249 @@
 const proxyquire = require('proxyquire');
 const chai = require('chai');
 const assert = chai.assert;
-const sinon = require('sinon');
 
+var scanDone = false;
+var connectDone = false;
+var disconnectDone = false;
+var servicesDone = false;
+var characteristicsDone = false;
+var readDone = false;
+var managePeripheralDone = false;
+
+var failAtStep = undefined;
 var nbCreation = 0;
-var clock;
+
+var foundPeripherals;
+
 var shared = {
   scanTimeout: 15,
   bluetoothOn: true,
-  scanTimer : null
+  scanTimer: null
 };
 
-var scanMock = function(uuids, peripherals) {
-  return Promise.resolve(foundPeripherals);
+var peripheral = {
+  disconnect: function () {
+    disconnectDone = true;
+  }
 };
 
-var install = proxyquire('../../../lib/install.js', { 
+var checkRejectionCondition = function (step) {
+  if (failAtStep == step) {
+    return Promise.reject('Error at ' + failAtStep);
+  } else {
+    return Promise.resolve('Success');
+  }
+};
+
+var scanMock = function (uuids, peripherals) {
+  scanDone = true;
+  return checkRejectionCondition('scan').then(() => {
+    return Promise.resolve(foundPeripherals);
+  });
+};
+
+var connectMock = function (uuids, peripherals) {
+  connectDone = true;
+  return checkRejectionCondition('connect');
+};
+
+var discoverServicesMock = function (uuids, peripherals) {
+  servicesDone = true;
+  return checkRejectionCondition('services');
+};
+
+var discoverCharacteristicsMock = function (uuids, peripherals) {
+  characteristicsDone = true;
+  return checkRejectionCondition('characteristics');
+};
+
+var readMock = function (uuids, peripherals) {
+  readDone = true;
+  return checkRejectionCondition('read');
+};
+
+var managePeripheralMock = function (uuids, peripherals) {
+  managePeripheralDone = true;
+  return checkRejectionCondition('managePeripheral').then(() => {
+    nbCreation++;
+    return Promise.resolve();
+  });
+};
+
+var install = proxyquire('../../../lib/install.js', {
   './shared.js': shared,
-  './bluetooth.scan.js' : scanMock
+  './bluetooth.scan.js': scanMock,
+  './bluetooth.connect.js': connectMock,
+  './bluetooth.discoverServices.js': discoverServicesMock,
+  './bluetooth.discoverCharacteristics.js': discoverCharacteristicsMock,
+  './bluetooth.read.js': readMock,
+  './managePeripheral.js': managePeripheralMock
 });
 
-describe('Gladys device install', function() {
+describe('Gladys device install', function () {
 
-  beforeEach(function() {
-    clock = sinon.useFakeTimers();
-    foundPeripherals = undefined;
+  beforeEach(function () {
+    scanDone = false;
+    connectDone = false;
+    disconnectDone = false;
+    servicesDone = false;
+    characteristicsDone = false;
+    readDone = false;
+    managePeripheralDone = false;
+
+    failAtStep = undefined;
+
+    foundPeripherals = [];
+
     nbCreation = 0;
-    gladys = {
-      device : {
-        create : function() {
-          nbCreation++;
-          return Promise.resolve();
-        }
-      }
-    };
   });
 
-  afterEach(function() {
-    clock.restore();
-  });
-
-  it('No device found', function(done) {
+  it('No device found', function (done) {
     foundPeripherals = new Map();
 
-    install().then((result) => {
+    install().then(() => {
       assert.equal(nbCreation, 0, 'No device creation expected');
+      assert.isOk(scanDone, 'Scan should be OK');
+      assert.isNotOk(connectDone, 'Connect should not be OK');
+      assert.isNotOk(disconnectDone, 'Disconnect should not be OK');
+      assert.isNotOk(servicesDone, 'Services should not be OK');
+      assert.isNotOk(characteristicsDone, 'Characteristics should not be OK');
+      assert.isNotOk(readDone, 'Read should not be OK');
+      assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
     });
   });
 
-  it('No advertisement device found', function(done) {
-    foundPeripherals = new Map();
-    foundPeripherals.set('Peripheral 1', { address : 'Peripheral 1' });
+  it('Fail at scan step', function (done) {
+    failAtStep = 'scan';
 
-    install().then((result) => {
+    install().then(() => {
+      done('Should have fail');
+    }).catch(() => {
       assert.equal(nbCreation, 0, 'No device creation expected');
+      assert.isOk(scanDone, 'Scan should be OK');
+      assert.isNotOk(connectDone, 'Connect should not be OK');
+      assert.isNotOk(disconnectDone, 'Disconnect should not be OK');
+      assert.isNotOk(servicesDone, 'Services should not be OK');
+      assert.isNotOk(characteristicsDone, 'Characteristics should not be OK');
+      assert.isNotOk(readDone, 'Read should not be OK');
+      assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
+      done();
+    });
+  });
+
+  it('Fail at connection step', function (done) {
+    foundPeripherals = new Map();
+    foundPeripherals.set('Peripheral 1', peripheral);
+
+    failAtStep = 'connect';
+
+    install().then(() => {
+      assert.equal(nbCreation, 0, 'No device creation expected');
+      assert.isOk(scanDone, 'Scan should be OK');
+      assert.isOk(connectDone, 'Connect should be OK');
+      assert.isOk(disconnectDone, 'Disconnect should be OK');
+      assert.isNotOk(servicesDone, 'Services should not be OK');
+      assert.isNotOk(characteristicsDone, 'Characteristics should not be OK');
+      assert.isNotOk(readDone, 'Read should not be OK');
+      assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
     });
   });
 
-  it('No name device found', function(done) {
+  it('Fail at services step', function (done) {
     foundPeripherals = new Map();
-    foundPeripherals.set('Peripheral 1', { address : 'Peripheral 1', advertisement : {} });
+    foundPeripherals.set('Peripheral 1', peripheral);
 
-    install().then((result) => {
+    failAtStep = 'services';
+
+    install().then(() => {
       assert.equal(nbCreation, 0, 'No device creation expected');
+      assert.isOk(scanDone, 'Scan should be OK');
+      assert.isOk(connectDone, 'Connect should be OK');
+      assert.isOk(disconnectDone, 'Disconnect should be OK');
+      assert.isOk(servicesDone, 'Services should be OK');
+      assert.isNotOk(characteristicsDone, 'Characteristics should not be OK');
+      assert.isNotOk(readDone, 'Read should not be OK');
+      assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
     });
   });
 
-  it('No SML device found', function(done) {
+  it('Fail at characteristics step', function (done) {
     foundPeripherals = new Map();
-    foundPeripherals.set('Peripheral 1', { address : 'Peripheral 1', advertisement : { localName : 'name' } });
+    foundPeripherals.set('Peripheral 1', peripheral);
 
-    install().then((result) => {
+    failAtStep = 'characteristics';
+
+    install().then(() => {
       assert.equal(nbCreation, 0, 'No device creation expected');
+      assert.isOk(scanDone, 'Scan should be OK');
+      assert.isOk(connectDone, 'Connect should be OK');
+      assert.isOk(disconnectDone, 'Disconnect should be OK');
+      assert.isOk(servicesDone, 'Services should be OK');
+      assert.isOk(characteristicsDone, 'Characteristics should be OK');
+      assert.isNotOk(readDone, 'Read should not be OK');
+      assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
     });
   });
 
-  it('SML-c device found', function(done) {
+  it('Fail at read step', function (done) {
     foundPeripherals = new Map();
-    foundPeripherals.set('Peripheral 1', { address : 'Peripheral 1', advertisement : { localName : 'SML-cEFZEJRFZM' } });
+    foundPeripherals.set('Peripheral 1', peripheral);
 
-    install().then((result) => {
+    failAtStep = 'read';
+
+    install().then(() => {
+      assert.equal(nbCreation, 0, 'No device creation expected');
+      assert.isOk(scanDone, 'Scan should be OK');
+      assert.isOk(connectDone, 'Connect should be OK');
+      assert.isOk(disconnectDone, 'Disconnect should be OK');
+      assert.isOk(servicesDone, 'Services should be OK');
+      assert.isOk(characteristicsDone, 'Characteristics should be OK');
+      assert.isOk(readDone, 'Read should be OK');
+      assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
+      done();
+    }).catch((result) => {
+      done('Should not have fail : ' + result);
+    });
+  });
+
+  it('Fail at manage peripheral step', function (done) {
+    foundPeripherals = new Map();
+    foundPeripherals.set('Peripheral 1', peripheral);
+
+    failAtStep = 'managePeripheral';
+
+    install().then(() => {
+      assert.equal(nbCreation, 0, 'No device creation expected');
+      assert.isOk(scanDone, 'Scan should be OK');
+      assert.isOk(connectDone, 'Connect should be OK');
+      assert.isOk(disconnectDone, 'Disconnect should be OK');
+      assert.isOk(servicesDone, 'Services should be OK');
+      assert.isOk(characteristicsDone, 'Characteristics should be OK');
+      assert.isOk(readDone, 'Read should be OK');
+      assert.isOk(managePeripheralDone, 'Manage peripheral should be OK');
+      done();
+    }).catch((result) => {
+      done('Should not have fail : ' + result);
+    });
+  });
+
+  it('SML-c device found', function (done) {
+    foundPeripherals = new Map();
+    foundPeripherals.set('Peripheral 1', peripheral);
+
+    install().then(() => {
       assert.equal(nbCreation, 1, 'No device creation expected');
       done();
     }).catch((result) => {
@@ -99,11 +251,11 @@ describe('Gladys device install', function() {
     });
   });
 
-  it('SML-w device found', function(done) {
+  it('SML-w device found', function (done) {
     foundPeripherals = new Map();
-    foundPeripherals.set('Peripheral 1', { address : 'Peripheral 1', advertisement : { localName : 'SML-wEFZEJRFZM' } });
+    foundPeripherals.set('Peripheral 1', peripheral);
 
-    install().then((result) => {
+    install().then(() => {
       assert.equal(nbCreation, 1, 'No device creation expected');
       done();
     }).catch((result) => {

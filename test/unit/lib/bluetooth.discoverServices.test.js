@@ -1,13 +1,19 @@
 const awoxDiscoverServices = require('../../../lib/bluetooth.discoverServices.js');
 const chai = require('chai');
 const assert = chai.assert;
+const sinon = require('sinon');
+
+var clock;
 
 describe('Discover bluetooth services', function () {
 
   var peripheral;
+  var throwTimeout;
   var throwError;
 
   beforeEach(function () {
+    clock = sinon.useFakeTimers();
+    throwTimeout = false;
     throwError = false;
 
     peripheral = {
@@ -16,13 +22,19 @@ describe('Discover bluetooth services', function () {
         assert.deepEqual(service, ['fff0'], 'Expected requested service is not valid');
         this.discovered = true;
 
-        if (throwError) {
+        if (throwTimeout) {
+          clock.tick(10000);
+        } else if (throwError) {
           callback('Error', null);
         } else {
           callback(null, 'service');
         }
       }
     };
+  });
+
+  afterEach(function () {
+    clock.restore();
   });
 
   it('Discover peripheral services with success', function (done) {
@@ -35,6 +47,17 @@ describe('Discover bluetooth services', function () {
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
+    });
+  });
+
+  it('Discover peripheral services with timeout', function (done) {
+    throwTimeout = true;
+
+    awoxDiscoverServices(['fff0'], { peripheral: peripheral }).then(() => {
+      done('Should have fail');
+    }).catch(() => {
+      assert.isOk(peripheral.discovered, 'Discovered tag should be true');
+      done();
     });
   });
 

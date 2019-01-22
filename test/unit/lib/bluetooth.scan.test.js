@@ -47,7 +47,7 @@ describe('Scan bluetooth peripherals', function () {
 
     awoxScan(['fff0']).then(() => {
       done('Should have fail');
-    }).catch((result) => {
+    }).catch(() => {
       assert.isNull(shared.scanTimer, 'Scanner timeout should not have been initialized');
       done();
     });

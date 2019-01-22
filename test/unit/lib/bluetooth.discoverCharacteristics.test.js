@@ -1,14 +1,20 @@
 const awoxDiscoverCharacteristics = require('../../../lib/bluetooth.discoverCharacteristics.js');
 const chai = require('chai');
 const assert = chai.assert;
+const sinon = require('sinon');
+
+var clock;
 
 describe('Discover bluetooth characteristics', function () {
 
   var peripheral;
   var service;
+  var throwTimeout;
   var throwError;
 
   beforeEach(function () {
+    clock = sinon.useFakeTimers();
+    throwTimeout = false;
     throwError = false;
 
     peripheral = {
@@ -24,13 +30,19 @@ describe('Discover bluetooth characteristics', function () {
         assert.deepEqual(characteristic, ['fff1'], 'Expected requested characteristic is not valid');
         this.discovered = true;
 
-        if (throwError) {
+        if (throwTimeout) {
+          clock.tick(10000);
+        } else if (throwError) {
           callback('Error', null);
         } else {
           callback(null, 'characteristic');
         }
       }
     };
+  });
+
+  afterEach(function () {
+    clock.restore();
   });
 
   it('Discover service characteristics with success', function (done) {
@@ -44,6 +56,18 @@ describe('Discover bluetooth characteristics', function () {
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
+    });
+  });
+
+  it('Discover service characteristics with timeout', function (done) {
+    throwTimeout = true;
+
+    awoxDiscoverCharacteristics(['fff1'], { peripheral: peripheral, services: [service] }).then(() => {
+      done('Should have fail');
+    }).catch(() => {
+      assert.isOk(service.discovered, 'Discovered tag should be true');
+      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
+      done();
     });
   });
 

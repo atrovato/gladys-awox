@@ -1,15 +1,21 @@
 const awoxSend = require('../../../lib/bluetooth.send.js');
 const chai = require('chai');
 const assert = chai.assert;
+const sinon = require('sinon');
+
+var clock;
 
 describe('Sending bluetooth packets', function () {
 
   var peripheral;
   var characteristic;
+  var throwTimeout;
   var throwError;
   var command;
 
   beforeEach(function () {
+    clock = sinon.useFakeTimers();
+    throwTimeout = false;
     throwError = false;
     command = 'CommandToSend';
 
@@ -28,13 +34,19 @@ describe('Sending bluetooth packets', function () {
         assert.isNotOk(withoutResponse, 'No response expected');
         this.sent = true;
 
-        if (throwError) {
+        if (throwTimeout) {
+          clock.tick(10000);
+        } else if (throwError) {
           callback('Error');
         } else {
           callback();
         }
       }
     };
+  });
+
+  afterEach(function () {
+    clock.restore();
   });
 
   it('Send packet with success', function (done) {
@@ -47,6 +59,18 @@ describe('Sending bluetooth packets', function () {
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
+    });
+  });
+
+  it('Send packet with timeout', function (done) {
+    throwTimeout = true;
+
+    awoxSend({ peripheral: peripheral, characteristics: [characteristic], command: command }).then(() => {
+      done('Should have fail');
+    }).catch(() => {
+      assert.isOk(characteristic.sent, 'Discovered tag should be true');
+      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
+      done();
     });
   });
 
