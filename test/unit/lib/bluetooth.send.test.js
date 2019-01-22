@@ -53,8 +53,8 @@ describe('Sending bluetooth packets', function () {
   it('Send packet with success', function (done) {
     throwError = false;
 
-    awoxSend({ peripheral: peripheral, characteristics: [characteristic], command: command }).then((result) => {
-      assert.deepEqual(result.command, command, 'Not expected result');
+    awoxSend({ peripheral: peripheral, characteristics: [characteristic] }, command).then((result) => {
+      assert.deepEqual(result, { peripheral: peripheral, characteristics: [characteristic] }, 'Not expected result');
       assert.isOk(characteristic.sent, 'Discovered tag should be true');
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
@@ -66,7 +66,7 @@ describe('Sending bluetooth packets', function () {
   it('Send packet with timeout', function (done) {
     throwTimeout = true;
 
-    awoxSend({ peripheral: peripheral, characteristics: [characteristic], command: command }).then(() => {
+    awoxSend({ peripheral: peripheral, characteristics: [characteristic] }, command).then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isOk(characteristic.sent, 'Discovered tag should be true');
@@ -78,7 +78,7 @@ describe('Sending bluetooth packets', function () {
   it('Send packet with error', function (done) {
     throwError = true;
 
-    awoxSend({ peripheral: peripheral, characteristics: [characteristic], command: command }).then(() => {
+    awoxSend({ peripheral: peripheral, characteristics: [characteristic] }, command).then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isOk(characteristic.sent, 'Discovered tag should be true');
@@ -88,7 +88,7 @@ describe('Sending bluetooth packets', function () {
   });
 
   it('Send packet without characteristics (undefined)', function (done) {
-    awoxSend({ peripheral: peripheral, characteristics: undefined, command: command }).then(() => {
+    awoxSend({ peripheral: peripheral, characteristics: undefined }, command).then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
@@ -97,7 +97,7 @@ describe('Sending bluetooth packets', function () {
   });
 
   it('Send packet without characteristics (null)', function (done) {
-    awoxSend({ peripheral: peripheral, characteristics: null, command: command }).then(() => {
+    awoxSend({ peripheral: peripheral, characteristics: null }, command).then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
@@ -106,7 +106,7 @@ describe('Sending bluetooth packets', function () {
   });
 
   it('Send packet without characteristics (empty)', function (done) {
-    awoxSend({ peripheral: peripheral, characteristics: [], command: command }).then(() => {
+    awoxSend({ peripheral: peripheral, characteristics: [] }, command).then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');

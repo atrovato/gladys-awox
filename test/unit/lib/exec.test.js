@@ -19,9 +19,9 @@ var discoverServicesMock = function (uuids, device) {
 var discoverCharacteristicsMock = function (uuids, device) {
   return Promise.resolve({});
 };
-var sendMock = function (device) {
-  assert.deepEqual(device.command.slice(0, sliceIndex), expectedCommand.slice(0, sliceIndex), 'Not expected command sent');
-  return Promise.resolve({});
+var sendMock = function (device, command) {
+  assert.deepEqual(command.slice(0, sliceIndex), expectedCommand.slice(0, sliceIndex), 'Not expected command sent');
+  return Promise.resolve(device);
 };
 var scanMock = function (peripheral) {
   if (foundPeripherals !== undefined) {
