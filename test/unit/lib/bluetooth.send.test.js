@@ -28,6 +28,7 @@ describe('Sending bluetooth packets', function () {
 
     characteristic = {
       sent: false,
+      properties: ['write'],
       write: function (data, withoutResponse, callback) {
         var expectedCommand = new Buffer(command);
         assert.deepEqual(data, expectedCommand, 'Invalid command');
@@ -106,6 +107,17 @@ describe('Sending bluetooth packets', function () {
 
   it('Send packet without characteristics (empty)', function (done) {
     awoxSend({ peripheral: peripheral, characteristics: [], command: command }).then(() => {
+      done('Should have fail');
+    }).catch(() => {
+      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
+      done();
+    });
+  });
+
+  it('Send packet on non writable characteristics', function (done) {
+    characteristic.properties = [];
+
+    awoxSend({ peripheral: peripheral, characteristics: [characteristic] }).then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
