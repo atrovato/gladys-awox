@@ -29,6 +29,7 @@ describe('Sending bluetooth packets', function () {
     characteristic = {
       sent: false,
       properties: ['write'],
+      uuid: 'uuid',
       write: function (data, withoutResponse, callback) {
         var expectedCommand = new Buffer(command);
         assert.deepEqual(data, expectedCommand, 'Invalid command');
@@ -118,6 +119,17 @@ describe('Sending bluetooth packets', function () {
     characteristic.properties = [];
 
     awoxSend({ peripheral: peripheral, characteristics: [characteristic] }).then(() => {
+      done('Should have fail');
+    }).catch(() => {
+      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
+      done();
+    });
+  });
+
+  it('Send packet on non existing uuid characteristics', function (done) {
+    characteristic.properties = [];
+
+    awoxSend({ peripheral: peripheral, characteristics: [characteristic] }, null, 'oo').then(() => {
       done('Should have fail');
     }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');

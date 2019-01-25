@@ -123,4 +123,15 @@ describe('Reading bluetooth packets', function () {
       done();
     });
   });
+
+  it('Read packet on non existing uuid characteristics', function (done) {
+    characteristic.properties = [];
+
+    awoxRead({ peripheral: peripheral, characteristics: [characteristic] }, 'oo').then(() => {
+      done('Should have fail');
+    }).catch(() => {
+      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
+      done();
+    });
+  });
 });

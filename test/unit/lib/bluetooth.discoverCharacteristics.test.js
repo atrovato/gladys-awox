@@ -35,7 +35,7 @@ describe('Discover bluetooth characteristics', function () {
         } else if (throwError) {
           callback('Error', null);
         } else {
-          callback(null, 'characteristic');
+          callback(null, ['characteristic']);
         }
       }
     };
@@ -49,7 +49,7 @@ describe('Discover bluetooth characteristics', function () {
     throwError = false;
 
     awoxDiscoverCharacteristics(['fff1'], { peripheral: peripheral, services: [service] }).then((result) => {
-      var expectedResult = { peripheral: peripheral, services: [service], characteristics: 'characteristic' };
+      var expectedResult = { peripheral: peripheral, services: [service], characteristics: ['characteristic'] };
       assert.deepEqual(result, expectedResult, 'Not expected result');
       assert.isOk(service.discovered, 'Discovered tag should be true');
       assert.isOk(peripheral.connected, 'Peripheral should be disconnected');
