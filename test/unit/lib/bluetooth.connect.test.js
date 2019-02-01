@@ -19,7 +19,6 @@ describe('Connect bluetooth peripherals', function () {
     peripheral = {
       connected: false,
       connectable: true,
-      disconnected: false,
       addressType: 'public',
       connect: function (callback) {
         this.connected = true;
@@ -31,9 +30,6 @@ describe('Connect bluetooth peripherals', function () {
         } else {
           callback();
         }
-      },
-      disconnect: function () {
-        this.disconnected = true;
       }
     };
   });
@@ -46,9 +42,8 @@ describe('Connect bluetooth peripherals', function () {
     throwError = false;
 
     awoxConnect(peripheral).then((result) => {
-      assert.strictEqual(result.peripheral, peripheral, 'Expected peripheral should same as input');
+      assert.strictEqual(result, peripheral, 'Expected peripheral should same as input');
       assert.isOk(peripheral.connected, 'Connected tag should be true');
-      assert.isNotOk(peripheral.disconnected, 'Disonnected tag should be false');
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
@@ -62,7 +57,6 @@ describe('Connect bluetooth peripherals', function () {
       done('Should have fail');
     }).catch(() => {
       assert.isOk(peripheral.connected, 'Connected tag should be true');
-      assert.isOk(peripheral.disconnected, 'Disonnected tag should be true');
       done();
     });
   });
@@ -74,7 +68,6 @@ describe('Connect bluetooth peripherals', function () {
       done('Should have fail');
     }).catch(() => {
       assert.isOk(peripheral.connected, 'Connected tag should be true');
-      assert.isNotOk(peripheral.disconnected, 'Disonnected tag should be false');
       done();
     });
   });
@@ -86,7 +79,6 @@ describe('Connect bluetooth peripherals', function () {
       done('Should have fail');
     }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Connected tag should be true');
-      assert.isNotOk(peripheral.disconnected, 'Disonnected tag should be false');
       done();
     });
   });
@@ -98,7 +90,6 @@ describe('Connect bluetooth peripherals', function () {
       done('Should have fail');
     }).catch(() => {
       assert.isNotOk(peripheral.connected, 'Connected tag should be true');
-      assert.isNotOk(peripheral.disconnected, 'Disonnected tag should be false');
       done();
     });
   });

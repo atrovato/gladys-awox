@@ -8,6 +8,8 @@ var clock;
 describe('Discover bluetooth services', function () {
 
   var peripheral;
+  var service;
+  var services;
   var throwTimeout;
   var throwError;
 
@@ -16,10 +18,14 @@ describe('Discover bluetooth services', function () {
     throwTimeout = false;
     throwError = false;
 
+    service = { uuid: 'service1' };
+    services = [service];
+
     peripheral = {
       discovered: false,
-      discoverServices: function (service, callback) {
-        assert.deepEqual(service, ['fff0'], 'Expected requested service is not valid');
+      address: 'MAC address',
+      discoverServices: function (uuids, callback) {
+        assert.deepEqual(uuids, ['fff0'], 'Expected requested service is not valid');
         this.discovered = true;
 
         if (throwTimeout) {
@@ -27,7 +33,7 @@ describe('Discover bluetooth services', function () {
         } else if (throwError) {
           callback('Error', null);
         } else {
-          callback(null, 'service');
+          callback(null, services);
         }
       }
     };
@@ -40,8 +46,9 @@ describe('Discover bluetooth services', function () {
   it('Discover peripheral services with success', function (done) {
     throwError = false;
 
-    awoxDiscoverServices(['fff0'], { peripheral: peripheral }).then((result) => {
-      var expectedResult = { peripheral: peripheral, services: 'service' };
+    awoxDiscoverServices(peripheral, ['fff0']).then((result) => {
+      var expectedResult = new Map();
+      expectedResult.set(service.uuid, service);
       assert.deepEqual(result, expectedResult, 'Not expected result');
       assert.isOk(peripheral.discovered, 'Discovered tag should be true');
       done();
@@ -53,9 +60,10 @@ describe('Discover bluetooth services', function () {
   it('Discover peripheral services with timeout', function (done) {
     throwTimeout = true;
 
-    awoxDiscoverServices(['fff0'], { peripheral: peripheral }).then(() => {
+    awoxDiscoverServices(peripheral, ['fff0']).then(() => {
       done('Should have fail');
-    }).catch(() => {
+    }).catch((result) => {
+      assert.equal('Discover services timeout for ' + peripheral.address, result, 'Invalid error');
       assert.isOk(peripheral.discovered, 'Discovered tag should be true');
       done();
     });
@@ -64,9 +72,22 @@ describe('Discover bluetooth services', function () {
   it('Discover peripheral services with error', function (done) {
     throwError = true;
 
-    awoxDiscoverServices(['fff0'], { peripheral: peripheral }).then(() => {
+    awoxDiscoverServices(peripheral, ['fff0']).then(() => {
       done('Should have fail');
-    }).catch(() => {
+    }).catch((result) => {
+      assert.equal('Error', result, 'Invalid error');
+      assert.isOk(peripheral.discovered, 'Discovered tag should be true');
+      done();
+    });
+  });
+
+  it('Discover peripheral services with error (none found)', function (done) {
+    services = [];
+
+    awoxDiscoverServices(peripheral, ['fff0']).then(() => {
+      done('Should have fail');
+    }).catch((result) => {
+      assert.equal('No services found for ' + peripheral.address, result, 'Invalid error');
       assert.isOk(peripheral.discovered, 'Discovered tag should be true');
       done();
     });

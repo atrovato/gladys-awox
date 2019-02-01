@@ -1,6 +1,7 @@
 const proxyquire = require('proxyquire');
 const chai = require('chai');
 const assert = chai.assert;
+const Promise = require('bluebird');
 
 var scanDone = false;
 var connectDone = false;
@@ -42,27 +43,33 @@ var scanMock = function (peripherals) {
   });
 };
 
-var connectMock = function (uuids, peripherals) {
+var connectMock = function () {
   connectDone = true;
-  return checkRejectionCondition('connect');
+  return checkRejectionCondition('connect').then(() => {
+    return Promise.resolve(peripheral);
+  });
 };
 
-var discoverServicesMock = function (uuids, peripherals) {
+var discoverServicesMock = function () {
   servicesDone = true;
-  return checkRejectionCondition('services');
+  return checkRejectionCondition('services').then(() => {
+    return Promise.resolve([{ uuid: 'service1' }, { uuid: 'service2' }]);
+  });
 };
 
-var discoverCharacteristicsMock = function (uuids, peripherals) {
+var discoverCharacteristicsMock = function () {
   characteristicsDone = true;
-  return checkRejectionCondition('characteristics');
+  return checkRejectionCondition('characteristics').then(() => {
+    return Promise.resolve([{ uuid: 'char1' }, { uuid: 'char2' }]);
+  });
 };
 
-var readMock = function (uuids, peripherals) {
+var readMock = function () {
   readDone = true;
   return checkRejectionCondition('read');
 };
 
-var managePeripheralMock = function (uuids, peripherals) {
+var managePeripheralMock = function () {
   managePeripheralDone = true;
   return checkRejectionCondition('managePeripheral').then(() => {
     nbCreation++;
@@ -150,8 +157,8 @@ describe('Gladys device install', function () {
       assert.isNotOk(readDone, 'Read should not be OK');
       assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
       done();
-    }).catch((result) => {
-      done('Should not have fail : ' + result);
+    }).catch(() => {
+      done('Should not have fail');
     });
   });
 
@@ -171,8 +178,8 @@ describe('Gladys device install', function () {
       assert.isNotOk(readDone, 'Read should not be OK');
       assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
       done();
-    }).catch((result) => {
-      done('Should not have fail : ' + result);
+    }).catch(() => {
+      done('Should have fail');
     });
   });
 
@@ -192,8 +199,8 @@ describe('Gladys device install', function () {
       assert.isNotOk(readDone, 'Read should not be OK');
       assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
       done();
-    }).catch((result) => {
-      done('Should not have fail : ' + result);
+    }).catch(() => {
+      done('Should have fail');
     });
   });
 
@@ -213,8 +220,8 @@ describe('Gladys device install', function () {
       assert.isOk(readDone, 'Read should be OK');
       assert.isNotOk(managePeripheralDone, 'Manage peripheral should not be OK');
       done();
-    }).catch((result) => {
-      done('Should not have fail : ' + result);
+    }).catch(() => {
+      done('Should have fail');
     });
   });
 
@@ -234,8 +241,8 @@ describe('Gladys device install', function () {
       assert.isOk(readDone, 'Read should be OK');
       assert.isOk(managePeripheralDone, 'Manage peripheral should be OK');
       done();
-    }).catch((result) => {
-      done('Should not have fail : ' + result);
+    }).catch(() => {
+      done('Should have fail');
     });
   });
 

@@ -9,6 +9,8 @@ describe('Discover bluetooth characteristics', function () {
 
   var peripheral;
   var service;
+  var characteristc;
+  var characteristcs;
   var throwTimeout;
   var throwError;
 
@@ -17,14 +19,12 @@ describe('Discover bluetooth characteristics', function () {
     throwTimeout = false;
     throwError = false;
 
-    peripheral = {
-      connected: true,
-      disconnect: function () {
-        this.connected = false;
-      }
-    };
+    peripheral = { address: 'MAC adress' };
+    characteristc = { uuid: 'uuid' };
+    characteristcs = [characteristc];
 
     service = {
+      uuid: 'serviceUUID',
       discovered: false,
       discoverCharacteristics: function (characteristic, callback) {
         assert.deepEqual(characteristic, ['fff1'], 'Expected requested characteristic is not valid');
@@ -35,7 +35,7 @@ describe('Discover bluetooth characteristics', function () {
         } else if (throwError) {
           callback('Error', null);
         } else {
-          callback(null, ['characteristic']);
+          callback(null, characteristcs);
         }
       }
     };
@@ -48,11 +48,11 @@ describe('Discover bluetooth characteristics', function () {
   it('Discover service characteristics with success', function (done) {
     throwError = false;
 
-    awoxDiscoverCharacteristics(['fff1'], { peripheral: peripheral, services: [service] }).then((result) => {
-      var expectedResult = { peripheral: peripheral, services: [service], characteristics: ['characteristic'] };
+    awoxDiscoverCharacteristics(peripheral, service, ['fff1']).then((result) => {
+      var expectedResult = new Map();
+      expectedResult.set(characteristc.uuid, characteristc);
       assert.deepEqual(result, expectedResult, 'Not expected result');
       assert.isOk(service.discovered, 'Discovered tag should be true');
-      assert.isOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
     }).catch((result) => {
       done('Should not have fail : ' + result);
@@ -62,11 +62,11 @@ describe('Discover bluetooth characteristics', function () {
   it('Discover service characteristics with timeout', function (done) {
     throwTimeout = true;
 
-    awoxDiscoverCharacteristics(['fff1'], { peripheral: peripheral, services: [service] }).then(() => {
+    awoxDiscoverCharacteristics(peripheral, service, ['fff1']).then(() => {
       done('Should have fail');
-    }).catch(() => {
+    }).catch((result) => {
+      assert.equal('Discover characteristics timeout for ' + peripheral.address, result, 'Invalid error');
       assert.isOk(service.discovered, 'Discovered tag should be true');
-      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
     });
   });
@@ -74,38 +74,23 @@ describe('Discover bluetooth characteristics', function () {
   it('Discover service characteristics with error', function (done) {
     throwError = true;
 
-    awoxDiscoverCharacteristics(['fff1'], { peripheral: peripheral, services: [service] }).then(() => {
+    awoxDiscoverCharacteristics(peripheral, service, ['fff1']).then(() => {
       done('Should have fail');
-    }).catch(() => {
+    }).catch((result) => {
+      assert.equal('Error', result, 'Invalid error');
       assert.isOk(service.discovered, 'Discovered tag should be true');
-      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
       done();
     });
   });
 
-  it('Discover service characteristics without services (undefined)', function (done) {
-    awoxDiscoverCharacteristics(['fff1'], { peripheral: peripheral, services: undefined }).then(() => {
-      done('Should have fail');
-    }).catch(() => {
-      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
-      done();
-    });
-  });
+  it('Discover service characteristics with error (none found)', function (done) {
+    characteristcs = [];
 
-  it('Discover service characteristics without services (null)', function (done) {
-    awoxDiscoverCharacteristics(['fff1'], { peripheral: peripheral, services: null }).then(() => {
+    awoxDiscoverCharacteristics(peripheral, service, ['fff1']).then(() => {
       done('Should have fail');
-    }).catch(() => {
-      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
-      done();
-    });
-  });
-
-  it('Discover service characteristics without services (empty)', function (done) {
-    awoxDiscoverCharacteristics(['fff1'], { peripheral: peripheral, services: [] }).then(() => {
-      done('Should have fail');
-    }).catch(() => {
-      assert.isNotOk(peripheral.connected, 'Peripheral should be disconnected');
+    }).catch((result) => {
+      assert.equal('No characteristics found for service ' + service.uuid + ' on ' + peripheral.address, result, 'Invalid error');
+      assert.isOk(service.discovered, 'Discovered tag should be true');
       done();
     });
   });
