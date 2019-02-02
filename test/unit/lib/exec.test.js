@@ -72,7 +72,7 @@ var sendMock = function (peripheral, characteristic, command) {
   if (failAtStep == 'send') {
     return Promise.reject();
   } else {
-    return Promise.resolve(device);
+    return Promise.resolve(command);
   }
 };
 
@@ -271,6 +271,22 @@ describe('Gladys device exec', function () {
         assert.isOk(sendStep, 'Should be passed by send step');
         assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
+      });
+  });
+
+  it('Exec with success', function (done) {
+    exec(deviceInfo)
+      .then(() => {
+        assert.isOk(generateCommandStep, 'Should be passed by command generation step');
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isOk(servicesStep, 'Should be passed by services step');
+        assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
+        assert.isOk(sendStep, 'Should be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
+      }).catch((result) => {
+        done('Should not have fail ' + result);
       });
   });
 

@@ -59,6 +59,19 @@ describe('Gladys generate AwoX command', function () {
       });
   });
 
+  it('Device identifier is switch with invalid value = 2', function (done) {
+    var type = 'switch';
+    var value = 2;
+
+    generateCommand(macAddr, type, value)
+      .then(() => {
+        done('Should have fail');
+      }).catch((result) => {
+        assert.equal('Unknown command', result, 'Error invalid');
+        done();
+      });
+  });
+
   it('Device identifier is color with value = 0 (black / min)', function (done) {
     expectedCommand = shared.commands.color.slice(0);
     expectedCommand[10] = 0x00;
