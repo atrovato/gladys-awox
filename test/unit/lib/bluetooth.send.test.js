@@ -46,11 +46,23 @@ describe('Sending bluetooth packets', function () {
     clock.restore();
   });
 
-  it('Send packet with success', function (done) {
+  it('Send packet with success (array)', function (done) {
     throwError = false;
 
     awoxSend(peripheral, characteristic, command).then((result) => {
       assert.deepEqual(result, command, 'Not expected result');
+      assert.isOk(characteristic.sent, 'Discovered tag should be true');
+      done();
+    }).catch((result) => {
+      done('Should not have fail : ' + result);
+    });
+  });
+
+  it('Send packet with success buffer', function (done) {
+    throwError = false;
+
+    awoxSend(peripheral, characteristic, Buffer.from(command)).then((result) => {
+      assert.deepEqual(result, Buffer.from(command), 'Not expected result');
       assert.isOk(characteristic.sent, 'Discovered tag should be true');
       done();
     }).catch((result) => {
