@@ -102,4 +102,23 @@ describe('Gladys AwoX Mesh utilities', function () {
     assert.deepEqual(nameAndPasswordEncrypted, expected, 'Invalid nameAndPasswordEncrypted');
     done();
   });
+
+  it('Generate command', function (done) {
+    const sessionKey = [0x45, 0x96, 0xf2, 0xb9, 0xa6, 0x31, 0x52, 0x74, 0x4f, 0xae, 0x9b, 0xd, 0xe7, 0x34, 0xca, 0x48];
+    const address = 'a4:c1:38:04:59:d6';
+    const command = 0xd0;
+    const data = [0x01];
+
+    commandUtils.generateRandomBytes = function () {
+      return Buffer.from([0xe7, 0Xc7, 0xf9]);
+    };
+
+    const commandPacket = commandUtils.generateCommandPacket(sessionKey, address, command, data);
+
+    const expected = Buffer.from([0xe7, 0xc7, 0xf9, 0xeb, 0x24, 0xed, 0x4e, 0x2e, 0xcc, 0xdb, 0xf2, 0x6b, 0xc9, 0xa3, 0x31, 0x58, 0xd, 0x12, 0x5e, 0x59]);
+    console.log('generated', commandPacket);
+    console.log('expected ', expected);
+    assert.deepEqual(commandPacket, expected, 'Invalid generateCommandPacket');
+    done();
+  });
 });
