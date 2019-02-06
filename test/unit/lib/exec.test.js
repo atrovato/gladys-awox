@@ -3,31 +3,23 @@ const chai = require('chai');
 const assert = chai.assert;
 const Promise = require('bluebird');
 
+const meshExec = require('../../../lib/mesh/exec.js');
+const defaultExec = require('../../../lib/default/exec.js');
+
 var disconnected = false;
 var failAtStep;
 
-var generateCommandStep = false;
 var scanStep = false;
 var connectStep = false;
 var servicesStep = false;
 var characteristicsStep = false;
-var sendStep = false;
+var defaultExecStep = false;
 var meshExecStep = false;
 
 var shared = {
   scanTimeout: 15,
   bluetoothOn: true,
   scanTimer: null
-};
-
-var generateCommandMock = function () {
-  generateCommandStep = true;
-
-  if (failAtStep == 'generateCommand') {
-    return Promise.reject();
-  } else {
-    return Promise.resolve('command');
-  }
 };
 
 var connectMock = function (peripheral) {
@@ -66,17 +58,6 @@ var discoverCharacteristicsMock = function (uuids, device) {
   }
 };
 
-var sendMock = function (peripheral, characteristic, command) {
-  sendStep = true;
-  assert.equal(command, 'command', 'Not expected command sent');
-
-  if (failAtStep == 'send') {
-    return Promise.reject();
-  } else {
-    return Promise.resolve(command);
-  }
-};
-
 var scanMock = function (deviceInfo) {
   scanStep = true;
 
@@ -102,20 +83,34 @@ var scanMock = function (deviceInfo) {
   }
 };
 
-var meshMock = function () {
+meshExec.exec = function () {
   meshExecStep = true;
-  return Promise.resolve(1);
+
+  if (failAtStep == 'meshExec') {
+    return Promise.reject();
+  } else {
+    return Promise.resolve(1);
+  }
+};
+
+defaultExec.exec = function () {
+  defaultExecStep = true;
+
+  if (failAtStep == 'defaultExec') {
+    return Promise.reject();
+  } else {
+    return Promise.resolve(1);
+  }
 };
 
 var exec = proxyquire('../../../lib/exec.js', {
   './shared.js': shared,
-  './default/generateCommand.js': generateCommandMock,
   './bluetooth/connect.js': connectMock,
   './bluetooth/discoverServices.js': discoverServicesMock,
   './bluetooth/discoverCharacteristics.js': discoverCharacteristicsMock,
-  './bluetooth/send.js': sendMock,
   './bluetooth/scan.js': scanMock,
-  './mesh/exec.js': meshMock
+  './default/exec.js': defaultExec,
+  './mesh/exec.js': meshExec
 });
 
 describe('Gladys device exec', function () {
@@ -137,33 +132,13 @@ describe('Gladys device exec', function () {
     disconnected = false;
     failAtStep = undefined;
 
-    generateCommandStep = false;
     scanStep = false;
     connectStep = false;
     servicesStep = false;
     characteristicsStep = false;
-    sendStep = false;
+    defaultExecStep = false;
     disconnected = false;
     meshExecStep = false;
-  });
-
-  it('Fail at command generation', function (done) {
-    failAtStep = 'generateCommand';
-
-    exec(deviceInfo)
-      .then(() => {
-        done('Should have fail');
-      }).catch(() => {
-        assert.isOk(scanStep, 'Should not be passed by scan step');
-        assert.isOk(connectStep, 'Should not be passed by connection step');
-        assert.isOk(servicesStep, 'Should not be passed by services step');
-        assert.isOk(characteristicsStep, 'Should not be passed by characteristics step');
-        assert.isOk(generateCommandStep, 'Should be passed by command generation step');
-        assert.isNotOk(sendStep, 'Should not be passed by send step');
-        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isOk(disconnected, 'Should not be passed by disconnect');
-        done();
-      });
   });
 
   it('Fail at scan step', function (done) {
@@ -177,9 +152,8 @@ describe('Gladys device exec', function () {
         assert.isNotOk(connectStep, 'Should not be passed by connection step');
         assert.isNotOk(servicesStep, 'Should not be passed by services step');
         assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
-        assert.isNotOk(generateCommandStep, 'Should be passed by command generation step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isNotOk(sendStep, 'Should not be passed by send step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
         assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       });
@@ -196,9 +170,8 @@ describe('Gladys device exec', function () {
         assert.isNotOk(connectStep, 'Should not be passed by connection step');
         assert.isNotOk(servicesStep, 'Should not be passed by services step');
         assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
-        assert.isNotOk(generateCommandStep, 'Should be passed by command generation step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isNotOk(sendStep, 'Should not be passed by send step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
         assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       });
@@ -216,9 +189,8 @@ describe('Gladys device exec', function () {
         assert.isNotOk(connectStep, 'Should not be passed by connection step');
         assert.isNotOk(servicesStep, 'Should not be passed by services step');
         assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
-        assert.isNotOk(generateCommandStep, 'Should be passed by command generation step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isNotOk(sendStep, 'Should not be passed by send step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
         assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       });
@@ -235,9 +207,8 @@ describe('Gladys device exec', function () {
         assert.isOk(connectStep, 'Should be passed by connection step');
         assert.isNotOk(servicesStep, 'Should not be passed by services step');
         assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
-        assert.isNotOk(generateCommandStep, 'Should be passed by command generation step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isNotOk(sendStep, 'Should not be passed by send step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
         assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       });
@@ -254,9 +225,8 @@ describe('Gladys device exec', function () {
         assert.isOk(connectStep, 'Should be passed by connection step');
         assert.isOk(servicesStep, 'Should be passed by services step');
         assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
-        assert.isNotOk(generateCommandStep, 'Should be passed by command generation step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isNotOk(sendStep, 'Should not be passed by send step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
         assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       });
@@ -273,16 +243,15 @@ describe('Gladys device exec', function () {
         assert.isOk(connectStep, 'Should be passed by connection step');
         assert.isOk(servicesStep, 'Should be passed by services step');
         assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
-        assert.isNotOk(generateCommandStep, 'Should be passed by command generation step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isNotOk(sendStep, 'Should not be passed by send step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
         assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       });
   });
 
-  it('Fail at send step', function (done) {
-    failAtStep = 'send';
+  it('Fail at default exec step', function (done) {
+    failAtStep = 'defaultExec';
 
     exec(deviceInfo)
       .then(() => {
@@ -292,28 +261,45 @@ describe('Gladys device exec', function () {
         assert.isOk(connectStep, 'Should be passed by connection step');
         assert.isOk(servicesStep, 'Should be passed by services step');
         assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
-        assert.isOk(generateCommandStep, 'Should be passed by command generation step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isOk(sendStep, 'Should be passed by send step');
+        assert.isOk(defaultExecStep, 'Should be passed by send step');
         assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       });
   });
 
-  it('Exec with success', function (done) {
+  it('Exec default with success', function (done) {
     exec(deviceInfo)
       .then(() => {
         assert.isOk(scanStep, 'Should be passed by scan step');
         assert.isOk(connectStep, 'Should be passed by connection step');
         assert.isOk(servicesStep, 'Should be passed by services step');
         assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
-        assert.isOk(generateCommandStep, 'Should be passed by command generation step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
-        assert.isOk(sendStep, 'Should be passed by send step');
+        assert.isOk(defaultExecStep, 'Should be passed by send step');
         assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       }).catch((result) => {
         done('Should not have fail ' + result);
+      });
+  });
+
+  it('Fail at mesh exec step', function (done) {
+    deviceInfo.deviceType.protocol = 'bluetooth-mesh';
+    failAtStep = 'meshExec';
+
+    exec(deviceInfo)
+      .then(() => {
+        done('Should have fail');
+      }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isOk(servicesStep, 'Should be passed by services step');
+        assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
+        assert.isOk(meshExecStep, 'Should be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
       });
   });
 
@@ -326,9 +312,8 @@ describe('Gladys device exec', function () {
         assert.isOk(connectStep, 'Should be passed by connection step');
         assert.isOk(servicesStep, 'Should be passed by services step');
         assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
-        assert.isNotOk(generateCommandStep, 'Should not be passed by command generation step');
         assert.isOk(meshExecStep, 'Should be passed by mesh step');
-        assert.isNotOk(sendStep, 'Should net be passed by send step');
+        assert.isNotOk(defaultExecStep, 'Should net be passed by send step');
         assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       }).catch((result) => {
