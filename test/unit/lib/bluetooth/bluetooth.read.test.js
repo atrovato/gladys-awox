@@ -1,4 +1,4 @@
-const awoxRead = require('../../../lib/bluetooth.read.js');
+const awoxRead = require('../../../../lib/bluetooth/read.js');
 const chai = require('chai');
 const assert = chai.assert;
 const sinon = require('sinon');

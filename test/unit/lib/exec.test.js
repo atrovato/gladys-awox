@@ -109,12 +109,12 @@ var meshMock = function () {
 
 var exec = proxyquire('../../../lib/exec.js', {
   './shared.js': shared,
-  './generateCommand.js': generateCommandMock,
-  './bluetooth.connect.js': connectMock,
-  './bluetooth.discoverServices.js': discoverServicesMock,
-  './bluetooth.discoverCharacteristics.js': discoverCharacteristicsMock,
-  './bluetooth.send.js': sendMock,
-  './bluetooth.scan.js': scanMock,
+  './default/generateCommand.js': generateCommandMock,
+  './bluetooth/connect.js': connectMock,
+  './bluetooth/discoverServices.js': discoverServicesMock,
+  './bluetooth/discoverCharacteristics.js': discoverCharacteristicsMock,
+  './bluetooth/send.js': sendMock,
+  './bluetooth/scan.js': scanMock,
   './mesh/exec.js': meshMock
 });
 

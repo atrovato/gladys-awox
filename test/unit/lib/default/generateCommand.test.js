@@ -1,8 +1,8 @@
 const chai = require('chai');
 const assert = chai.assert;
 
-const generateCommand = require('../../../lib/generateCommand.js');
-const shared = require('../../../lib/shared.js');
+const generateCommand = require('../../../../lib/default/generateCommand.js');
+const shared = require('../../../../lib/shared.js');
 
 describe('Gladys generate AwoX command', function () {
 

@@ -61,8 +61,8 @@ const awoxReadMock = function (peripheral, characteristic) {
 
 const changeAuthentication = proxyquire('../../../../lib/mesh/changeAuthentication.js', {
   './commandUtils.js': meshUtilsMock,
-  '../bluetooth.send.js': awoxSendMock,
-  '../bluetooth.read.js': awoxReadMock
+  '../bluetooth/send.js': awoxSendMock,
+  '../bluetooth/read.js': awoxReadMock
 });
 
 describe('Gladys authenticate AwoX Mesh network', function () {

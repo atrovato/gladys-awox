@@ -79,11 +79,11 @@ var managePeripheralMock = function () {
 
 var install = proxyquire('../../../lib/install.js', {
   './shared.js': shared,
-  './bluetooth.scan.js': scanMock,
-  './bluetooth.connect.js': connectMock,
-  './bluetooth.discoverServices.js': discoverServicesMock,
-  './bluetooth.discoverCharacteristics.js': discoverCharacteristicsMock,
-  './bluetooth.read.js': readMock,
+  './bluetooth/scan.js': scanMock,
+  './bluetooth/connect.js': connectMock,
+  './bluetooth/discoverServices.js': discoverServicesMock,
+  './bluetooth/discoverCharacteristics.js': discoverCharacteristicsMock,
+  './bluetooth/read.js': readMock,
   './managePeripheral.js': managePeripheralMock
 });
 
