@@ -116,8 +116,6 @@ describe('Gladys AwoX Mesh utilities', function () {
     const commandPacket = commandUtils.generateCommandPacket(sessionKey, address, command, data);
 
     const expected = Buffer.from([0xe7, 0xc7, 0xf9, 0xeb, 0x24, 0xed, 0x4e, 0x2e, 0xcc, 0xdb, 0xf2, 0x6b, 0xc9, 0xa3, 0x31, 0x58, 0xd, 0x12, 0x5e, 0x59]);
-    console.log('generated', commandPacket);
-    console.log('expected ', expected);
     assert.deepEqual(commandPacket, expected, 'Invalid generateCommandPacket');
     done();
   });
