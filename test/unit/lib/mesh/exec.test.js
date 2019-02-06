@@ -6,6 +6,7 @@ const Promise = require('bluebird');
 var sendStep = false;
 var generateStep = false;
 var authStep = false;
+var packetStep = false;
 var failAtStep;
 
 var sendMock = function () {
@@ -24,7 +25,7 @@ var generateMock = function () {
   if (failAtStep == 'generate') {
     return Promise.reject();
   } else {
-    return Promise.resolve(1);
+    return Promise.resolve({ key: 'key', data: 'data' });
   }
 };
 
@@ -38,9 +39,22 @@ var authMock = function () {
   }
 };
 
+var packetMock = {
+  generateCommandPacket: function () {
+    packetStep = true;
+
+    if (failAtStep == 'packet') {
+      return Promise.reject();
+    } else {
+      return Promise.resolve(1);
+    }
+  }
+};
+
 const executor = proxyquire('../../../../lib/mesh/exec.js', {
   '../bluetooth/send.js': sendMock,
   './generateCommand.js': generateMock,
+  './commandUtils.js': packetMock,
   './authenticate.js': authMock
 });
 
@@ -60,6 +74,7 @@ describe('Gladys mesh device exec', function () {
     authStep = false;
     generateStep = false;
     sendStep = false;
+    packetStep = false;
   });
 
   it('Fail at auth step', function (done) {
@@ -71,6 +86,7 @@ describe('Gladys mesh device exec', function () {
       }).catch(() => {
         assert.isOk(authStep, 'Should be passed by auth step');
         assert.isNotOk(generateStep, 'Should not be passed by scan step');
+        assert.isNotOk(packetStep, 'Should not be passed by packet step');
         assert.isNotOk(sendStep, 'Should not be passed by send step');
         done();
       });
@@ -85,6 +101,22 @@ describe('Gladys mesh device exec', function () {
       }).catch(() => {
         assert.isOk(authStep, 'Should be passed by auth step');
         assert.isOk(generateStep, 'Should be passed by scan step');
+        assert.isNotOk(packetStep, 'Should not be passed by packet step');
+        assert.isNotOk(sendStep, 'Should not be passed by send step');
+        done();
+      });
+  });
+
+  it('Fail at packet step', function (done) {
+    failAtStep = 'packet';
+
+    executor.exec(peripheral, characteristics)
+      .then(() => {
+        done('Should have fail');
+      }).catch(() => {
+        assert.isOk(authStep, 'Should be passed by auth step');
+        assert.isOk(generateStep, 'Should be passed by scan step');
+        assert.isOk(packetStep, 'Should be passed by packet step');
         assert.isNotOk(sendStep, 'Should not be passed by send step');
         done();
       });
@@ -99,16 +131,19 @@ describe('Gladys mesh device exec', function () {
       }).catch(() => {
         assert.isOk(authStep, 'Should be passed by auth step');
         assert.isOk(generateStep, 'Should be passed by scan step');
+        assert.isOk(packetStep, 'Should be passed by packet step');
         assert.isOk(sendStep, 'Should be passed by send step');
         done();
       });
   });
+
 
   it('Exec success', function (done) {
     executor.exec(peripheral, characteristics)
       .then(() => {
         assert.isOk(authStep, 'Should be passed by auth step');
         assert.isOk(generateStep, 'Should be passed by scan step');
+        assert.isOk(packetStep, 'Should be passed by packet step');
         assert.isOk(sendStep, 'Should be passed by send step');
         done();
       }).catch(() => {
