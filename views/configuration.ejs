@@ -1,0 +1,147 @@
+<script src="/hooks/awox/js/awox.lang.js"></script>
+<script src="/hooks/awox/js/awox.controller.js"></script>
+<script src="/hooks/awox/js/awox.service.js"></script>
+
+<div data-ng-controller="AwoxController as vm">
+    <div class="box skin-box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">{{ 'SCAN_TITLE' | translate}}</h3>
+        </div>
+        <div class="box-body table-responsive">
+            <div class="alert alert-danger" role="alert" ng-hide="!vm.error">
+                {{ vm.error }}
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-danger btn-flat" ng-hide="vm.available"
+                    ng-disabled="vm.progress">{{ 'SCAN_UNAVAILABLE' | translate }}</button>
+                <button type="button" class="btn btn-success btn-flat" ng-click="vm.scan()"
+                    ng-hide="!vm.available || vm.install"
+                    ng-disabled="vm.progress">{{ 'SCAN_START' | translate }}</button>
+                <button type="button" class="btn btn-secondary btn-flat" ng-hide="!vm.available || !vm.install"
+                    disabled>{{ 'SCAN_RUNNING' | translate }}</button>
+            </div>
+            <div class="box-body table-responsive" ng-hide="vm.devices.length === 0">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th><%= __('Name') %></th>
+                            <th><%= __('Identifier') %></th>
+                            <th><%= __('Protocol') %></th>
+                            <th><%= __('Action') %></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="deviceGroup in vm.devices" class="ng-cloak">
+                            <td>{{ deviceGroup.device.name }}</td>
+                            <td>{{ deviceGroup.device.identifier }} </td>
+                            <td>{{ deviceGroup.device.protocol }} </td>
+                            <td>
+                                <button class=" btn btn-flat btn-info" data-toggle="modal" data-target=".mesh-modal"
+                                    ng-click="vm.selectDevice(deviceGroup)"
+                                    ng-disabled="vm.progress">{{ 'DEVICE_CONFIG' | translate }}</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="modalMesh" class="modal fade mesh-modal" tabindex="-1" role="dialog"
+                aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">×</span></button>
+                            <h4 class="modal-title" id="myLargeModalLabel">{{ vm.selectedDevice.device.name }} -
+                                {{ vm.selectedDevice.device.identifier }}</h4>
+                        </div>
+
+                        <div class="alert alert-danger" role="alert" ng-hide="!vm.mError">
+                            {{ vm.mError }}
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group row">
+                                <label for="deviceName" class="col-sm-3 control-label"><%= __('Name') %></label>
+                                <div class="col-sm-9">
+                                    <input type="text" placeholder="<%= __('device-create-name') %>"
+                                        class="form-control" ng-model="vm.selectedDevice.device.name"
+                                        ng-model-options='{ debounce: 500 }' id="deviceName" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="deviceName" class="col-sm-3 control-label"><%= __('Room') %></label>
+                                <div class="col-sm-9">
+                                    <select name="selectRoom" id="selectRoom" class="form-control"
+                                        ng-options="room.name for room in vm.rooms track by room.id"
+                                        ng-model="vm.selectedDevice.device.room">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label"><%= __('Action') %></label>
+                                <div class="col-sm-9">
+                                    <div class="form-check" ng-repeat="deviceType in vm.selectedDevice.types">
+                                        <input type="checkbox" class="form-check-input" id="{{ deviceType.identifier }}"
+                                            ng-checked="deviceType.display">
+                                        <label class="form-check-label"
+                                            for="{{ deviceType.identifier }}">{{ deviceType.identifier | translate }}</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth'">
+                                {{ MESH_PAIR_DESCR | translate }}
+                            </div>
+
+                            <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol != 'bluetooth-mesh'">
+                                <label for="selectRemote" class="col-sm-3 control-label"><%= __('Remote') %></label>
+                                <div class="col-sm-9">
+                                    <select name="selectRemote" id="selectRemote" class="form-control"
+                                        ng-options="remote.identifier as (remote.name + ' - ' + remote.identifier) for remote in vm.remotes track by remote.id"
+                                        ng-model="vm.selectedDevice.remoteId">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth'">
+                                <label for="user" class="col-sm-3 control-label"><%= __('User') %></label>
+                                <div class="col-sm-9">
+                                    <input type="text" placeholder="<%= __('User') %>" class="form-control"
+                                        ng-model="vm.selectedDevice.auth.name" id="user" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth'">
+                                <label for="password" class="col-sm-3 control-label"><%= __('Password') %></label>
+                                <div class="col-sm-9">
+                                    <input type="text" placeholder="<%= __('Password') %>" class="form-control"
+                                        ng-model="vm.selectedDevice.auth.pass" id="password" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-2 col-sm-offset-10">
+                                    <button class="btn btn-flat btn-success"
+                                        ng-hide="vm.selectedDevice.alreadyExists || vm.selectedDevice.device.protocol != 'bluetooth'"
+                                        ng-click="vm.createDevice(vm.selectedDevice);"
+                                        ng-disabled="vm.progress"><%= __('Create') %></button>
+                                    <button class="btn btn-flat btn-success"
+                                        ng-hide="!vm.selectedDevice.alreadyExists || vm.selectedDevice.device.protocol != 'bluetooth'"
+                                        ng-click="vm.updateDevice(vm.selectedDevice);"
+                                        ng-disabled="vm.progress"><%= __('Update') %></button>
+                                    <button class="btn btn-flat btn-info"
+                                        ng-hide="vm.selectedDevice.device.protocol == 'bluetooth'"
+                                        ng-click="vm.createMeshDevice(vm.selectedDevice)"
+                                        ng-disabled="vm.progress"><%= __('Next') %></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

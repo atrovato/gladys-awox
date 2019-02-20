@@ -1,9 +1,21 @@
 const proxyquire = require('proxyquire');
 const chai = require('chai');
 const assert = chai.assert;
+const Promise = require('bluebird');
 
-var expectedCommand = null;
-var sliceIndex = 0;
+const meshExec = require('../../../lib/mesh/exec.js');
+const defaultExec = require('../../../lib/default/exec.js');
+
+var disconnected = false;
+var failAtStep;
+
+var scanStep = false;
+var connectStep = false;
+var servicesStep = false;
+var characteristicsStep = false;
+var defaultExecStep = false;
+var meshExecStep = false;
+
 var shared = {
   scanTimeout: 15,
   bluetoothOn: true,
@@ -11,45 +23,102 @@ var shared = {
 };
 
 var connectMock = function (peripheral) {
-  return Promise.resolve(peripheral);
-};
-var discoverServicesMock = function (uuids, device) {
-  return Promise.resolve({});
-};
-var discoverCharacteristicsMock = function (uuids, device) {
-  return Promise.resolve({});
-};
-var sendMock = function (device) {
-  assert.deepEqual(device.command.slice(0, sliceIndex), expectedCommand.slice(0, sliceIndex), 'Not expected command sent');
-  return Promise.resolve({});
-};
-var scanMock = function (uuids, peripheral) {
-  if (foundPeripherals !== undefined) {
-    return Promise.resolve(foundPeripherals);
+  connectStep = true;
+
+  if (failAtStep == 'connect') {
+    return Promise.reject();
   } else {
     return Promise.resolve(peripheral);
   }
 };
 
+var discoverServicesMock = function (uuids, device) {
+  servicesStep = true;
+
+  if (failAtStep == 'services') {
+    return Promise.reject();
+  } else {
+    const serviceMap = new Map();
+    serviceMap.set('s1', { uuid: 's1' });
+    serviceMap.set('s2', { uuid: 's2' });
+    return Promise.resolve(serviceMap);
+  }
+};
+
+var discoverCharacteristicsMock = function (uuids, device) {
+  characteristicsStep = true;
+
+  if (failAtStep == 'characteristics') {
+    return Promise.reject();
+  } else {
+    const characteristicMap = new Map();
+    characteristicMap.set('c1', { uuid: 'c1' });
+    characteristicMap.set('c2', { uuid: 'c2' });
+    return Promise.resolve(characteristicMap);
+  }
+};
+
+var scanMock = function (deviceInfo) {
+  scanStep = true;
+
+  if (failAtStep == 'scan') {
+    return Promise.reject();
+  } else if (foundPeripherals !== undefined) {
+    if (foundPeripherals) {
+      foundPeripherals.forEach(element => {
+        element.disconnect = function () {
+          disconnected = true;
+        };
+      });
+    }
+    return Promise.resolve(foundPeripherals);
+  } else {
+    const peripherals = new Map();
+    peripherals.set('Peripheral 1', {
+      disconnect: function () {
+        disconnected = true;
+      }
+    });
+    return Promise.resolve(peripherals);
+  }
+};
+
+meshExec.exec = function () {
+  meshExecStep = true;
+
+  if (failAtStep == 'meshExec') {
+    return Promise.reject();
+  } else {
+    return Promise.resolve(1);
+  }
+};
+
+defaultExec.exec = function () {
+  defaultExecStep = true;
+
+  if (failAtStep == 'defaultExec') {
+    return Promise.reject();
+  } else {
+    return Promise.resolve(1);
+  }
+};
+
 var exec = proxyquire('../../../lib/exec.js', {
   './shared.js': shared,
-  './bluetooth.connect.js': connectMock,
-  './bluetooth.discoverServices.js': discoverServicesMock,
-  './bluetooth.discoverCharacteristics.js': discoverCharacteristicsMock,
-  './bluetooth.send.js': sendMock,
-  './bluetooth.scan.js': scanMock
+  './bluetooth/connect.js': connectMock,
+  './bluetooth/discoverServices.js': discoverServicesMock,
+  './bluetooth/discoverCharacteristics.js': discoverCharacteristicsMock,
+  './bluetooth/scan.js': scanMock,
+  './default/exec.js': defaultExec,
+  './mesh/exec.js': meshExec
 });
 
 describe('Gladys device exec', function () {
 
-  beforeEach(function () {
-    expectedCommand = null;
-    sliceIndex = 0;
-    foundPeripherals = undefined;
-  });
+  var deviceInfo;
 
-  it('Device identifier not managed', function (done) {
-    var deviceInfo = {
+  beforeEach(function () {
+    deviceInfo = {
       deviceType: {
         identifier: 'Peripheral 1',
         deviceTypeIdentifier: 'unknown'
@@ -59,524 +128,196 @@ describe('Gladys device exec', function () {
       }
     };
 
-    exec(deviceInfo)
-      .then(() => {
-        done('Should have fail');
-      }).catch(() => {
-        done();
-      });
+    foundPeripherals = undefined;
+    disconnected = false;
+    failAtStep = undefined;
+
+    scanStep = false;
+    connectStep = false;
+    servicesStep = false;
+    characteristicsStep = false;
+    defaultExecStep = false;
+    disconnected = false;
+    meshExecStep = false;
   });
 
-  it('Device identifier is binary with not managed value', function (done) {
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'binary'
-      },
-      state: {
-        value: 3
-      }
-    };
+  it('Fail at scan step', function (done) {
+    failAtStep = 'scan';
 
     exec(deviceInfo)
       .then(() => {
         done('Should have fail');
       }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isNotOk(connectStep, 'Should not be passed by connection step');
+        assert.isNotOk(servicesStep, 'Should not be passed by services step');
+        assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
+        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
-      });
-  });
-
-  it('Device identifier is switch with value = 0', function (done) {
-    expectedCommand = shared.commands.off.slice(0);
-    sliceIndex = expectedCommand.length - 1;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'switch'
-      },
-      state: {
-        value: 0
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is switch with value = 1', function (done) {
-    expectedCommand = shared.commands.on.slice(0);
-    sliceIndex = expectedCommand.length - 1;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'switch'
-      },
-      state: {
-        value: 1
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 0 (black / min)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[10] = 0x00;
-    expectedCommand[11] = 0x00;
-    expectedCommand[12] = 0x00;
-    sliceIndex = 14;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 0
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 16.777.215 (white / max)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[09] = 0xFF;
-    expectedCommand[10] = 0xFF;
-    expectedCommand[11] = 0xFF;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 16777215
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 16711680 (red)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[09] = 0xFF;
-    expectedCommand[10] = 0x00;
-    expectedCommand[11] = 0x00;
-    sliceIndex = 14;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 16711680
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 65280 (green)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[09] = 0x00;
-    expectedCommand[10] = 0xFF;
-    expectedCommand[11] = 0x00;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 65280
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 255 (blue)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[09] = 0x00;
-    expectedCommand[10] = 0x00;
-    expectedCommand[11] = 0xFF;
-    sliceIndex = 14;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 255
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 16776960 (yellow)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[09] = 0xFF;
-    expectedCommand[10] = 0xFF;
-    expectedCommand[11] = 0x00;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 16776960
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 65535 (cyan)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[09] = 0x00;
-    expectedCommand[10] = 0xFF;
-    expectedCommand[11] = 0xFF;
-    sliceIndex = 14;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 65535
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 16711935 (magenta)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[09] = 0xFF;
-    expectedCommand[10] = 0x00;
-    expectedCommand[11] = 0xFF;
-    sliceIndex = 14;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 16711935
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color with value = 8355711 (grey)', function (done) {
-    expectedCommand = shared.commands.color.slice(0);
-    expectedCommand[09] = 0x7F;
-    expectedCommand[10] = 0x7F;
-    expectedCommand[11] = 0x7F;
-    sliceIndex = 14;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color'
-      },
-      state: {
-        value: 8355711
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is manual', function (done) {
-    expectedCommand = 'MANUAL COMMAND';
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'manual'
-      },
-      state: {
-        value: 'MANUAL COMMAND'
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is brightness with level = 0% (min / 600)', function (done) {
-    expectedCommand = shared.commands.brightness.slice(0);
-    expectedCommand[8] = 0x02;
-    expectedCommand[9] = 0x58;
-    sliceIndex = 10;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'brightness'
-      },
-      state: {
-        value: 0
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is brightness with level = 25% (1213)', function (done) {
-    expectedCommand = shared.commands.brightness.slice(0);
-    expectedCommand[8] = 0x04;
-    expectedCommand[9] = 0xBD;
-    sliceIndex = 10;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'brightness'
-      },
-      state: {
-        value: 25
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is brightness with level = 50% (1825)', function (done) {
-    expectedCommand = shared.commands.brightness.slice(0);
-    expectedCommand[8] = 0x07;
-    expectedCommand[9] = 0x21;
-    sliceIndex = 10;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'brightness'
-      },
-      state: {
-        value: 50
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is brightness with level = 75% (2438)', function (done) {
-    expectedCommand = shared.commands.brightness.slice(0);
-    expectedCommand[8] = 0x09;
-    expectedCommand[9] = 0x86;
-    sliceIndex = 10;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'brightness'
-      },
-      state: {
-        value: 75
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is brightness with level = 100% (max / 3050)', function (done) {
-    expectedCommand = shared.commands.brightness.slice(0);
-    expectedCommand[8] = 0x0B;
-    expectedCommand[9] = 0xEA;
-    sliceIndex = 10;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'brightness'
-      },
-      state: {
-        value: 100
-      }
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is color reset', function (done) {
-    expectedCommand = shared.commands.colorReset.slice(0);
-    sliceIndex = 14;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'color_reset'
-      },
-      state: {}
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
-      });
-  });
-
-  it('Device identifier is white reset', function (done) {
-    expectedCommand = shared.commands.whiteReset.slice(0);
-    sliceIndex = 14;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'white_reset'
-      },
-      state: {}
-    };
-
-    exec(deviceInfo)
-      .then(() => {
-        done();
-      }).catch((result) => {
-        done('Should not have fail : ' + result);
       });
   });
 
   it('No peripherals found', function (done) {
-    expectedCommand = shared.commands.off.slice(0);
-    sliceIndex = expectedCommand.length - 1;
     foundPeripherals = false;
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'switch'
-      },
-      state: {
-        value: 0
-      }
-    };
 
     exec(deviceInfo)
       .then(() => {
         done('Should have fail');
       }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isNotOk(connectStep, 'Should not be passed by connection step');
+        assert.isNotOk(servicesStep, 'Should not be passed by services step');
+        assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
+        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       });
   });
 
   it('Expected peripheral not found', function (done) {
-    expectedCommand = shared.commands.off.slice(0);
-    sliceIndex = expectedCommand.length - 1;
     foundPeripherals = new Map();
-    foundPeripherals.set('unknow', null);
-
-    var deviceInfo = {
-      deviceType: {
-        identifier: 'Peripheral 1',
-        deviceTypeIdentifier: 'switch'
-      },
-      state: {
-        value: 0
-      }
-    };
+    foundPeripherals.set('not found', {});
 
     exec(deviceInfo)
       .then(() => {
         done('Should have fail');
       }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isNotOk(connectStep, 'Should not be passed by connection step');
+        assert.isNotOk(servicesStep, 'Should not be passed by services step');
+        assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
+        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
+      });
+  });
+
+  it('Fail at connection step', function (done) {
+    failAtStep = 'connect';
+
+    exec(deviceInfo)
+      .then(() => {
+        done('Should have fail');
+      }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isNotOk(servicesStep, 'Should not be passed by services step');
+        assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
+        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
+      });
+  });
+
+  it('Fail at services step', function (done) {
+    failAtStep = 'services';
+
+    exec(deviceInfo)
+      .then(() => {
+        done('Should have fail');
+      }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isOk(servicesStep, 'Should be passed by services step');
+        assert.isNotOk(characteristicsStep, 'Should not be passed by characteristics step');
+        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
+      });
+  });
+
+  it('Fail at characteristics step', function (done) {
+    failAtStep = 'characteristics';
+
+    exec(deviceInfo)
+      .then(() => {
+        done('Should have fail');
+      }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isOk(servicesStep, 'Should be passed by services step');
+        assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
+        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
+      });
+  });
+
+  it('Fail at default exec step', function (done) {
+    failAtStep = 'defaultExec';
+
+    exec(deviceInfo)
+      .then(() => {
+        done('Should have fail');
+      }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isOk(servicesStep, 'Should be passed by services step');
+        assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
+        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
+        assert.isOk(defaultExecStep, 'Should be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
+      });
+  });
+
+  it('Exec default with success', function (done) {
+    exec(deviceInfo)
+      .then(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isOk(servicesStep, 'Should be passed by services step');
+        assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
+        assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
+        assert.isOk(defaultExecStep, 'Should be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
+      }).catch((result) => {
+        done('Should not have fail ' + result);
+      });
+  });
+
+  it('Fail at mesh exec step', function (done) {
+    deviceInfo.deviceType.protocol = 'bluetooth-mesh';
+    failAtStep = 'meshExec';
+
+    exec(deviceInfo)
+      .then(() => {
+        done('Should have fail');
+      }).catch(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isOk(servicesStep, 'Should be passed by services step');
+        assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
+        assert.isOk(meshExecStep, 'Should be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
+      });
+  });
+
+  it('Exec Mesh with success', function (done) {
+    deviceInfo.deviceType.protocol = 'bluetooth-mesh';
+
+    exec(deviceInfo)
+      .then(() => {
+        assert.isOk(scanStep, 'Should be passed by scan step');
+        assert.isOk(connectStep, 'Should be passed by connection step');
+        assert.isOk(servicesStep, 'Should be passed by services step');
+        assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
+        assert.isOk(meshExecStep, 'Should be passed by mesh step');
+        assert.isNotOk(defaultExecStep, 'Should net be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
+        done();
+      }).catch((result) => {
+        done('Should not have fail ' + result);
       });
   });
 

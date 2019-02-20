@@ -1,6 +1,6 @@
 {
   "name": "gladys-awox",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Awox device manager for Gladys",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/atrovato/gladys-awox#readme",
   "dependencies": {
+    "aes-js": "^3.1.2",
     "bluebird": "^3.5.3",
     "noble": "^1.9.1"
   },
