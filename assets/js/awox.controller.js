@@ -52,7 +52,7 @@
         });
       });
 
-      io.socket.on('awoxPair', function (params) {
+      io.socket.on('awoxPair', function () {
         $scope.$apply(function () {
           vm.error = null;
           vm.mError = null;
