@@ -37,9 +37,9 @@ describe('Gladys peripheral as device manager', function () {
 
     gladys = {
       device: {
-        get: function () {
+        getByIdentifier: function () {
           gladysDeviceGet = true;
-          return Promise.resolve([]);
+          return Promise.reject();
         }
       }
     };
@@ -137,7 +137,6 @@ describe('Gladys peripheral as device manager', function () {
           protocol: remoteDevice ? 'bluetooth-remote' : meshDevice ? 'bluetooth-mesh' : 'bluetooth'
         },
         remote: remoteDevice,
-        alreadyExists: false,
         types: remoteDevice ? [] : types
       };
 
