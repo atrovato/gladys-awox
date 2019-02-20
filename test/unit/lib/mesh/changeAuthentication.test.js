@@ -11,6 +11,7 @@ const pairCommand = Buffer.from([0x03, 0x04]);
 
 const defaultMeshName = 'MESH-NAME';
 const defaultMeshPassword = 'MESH-PASS';
+const defaultMeshKey = 'MESH-KEY';
 const defaultSession = Buffer.from([0x05, 0x06]);
 
 const defaultPeripheral = { address: 'MAC address' };
@@ -74,7 +75,7 @@ describe('Gladys authenticate AwoX Mesh network', function () {
   });
 
   it('Change authenticate with success', function (done) {
-    changeAuthentication(defaultPeripheral, characteristics, defaultMeshName, defaultMeshPassword, defaultSession).then((result) => {
+    changeAuthentication(defaultPeripheral, characteristics, defaultMeshName, defaultMeshPassword, defaultMeshKey, defaultSession).then((result) => {
       assert.equal(awoxSend, 3, 'Not expected send times');
       assert.equal(awoxRead, 1, 'Not expected read times');
       assert.deepEqual(result, defaultPeripheral, 'Not expected result');
@@ -87,7 +88,7 @@ describe('Gladys authenticate AwoX Mesh network', function () {
   it('Change authenticate with bad credentials', function (done) {
     returnCode = [0x0e];
 
-    changeAuthentication(defaultPeripheral, characteristics, defaultMeshName, defaultMeshPassword, defaultSession).then((result) => {
+    changeAuthentication(defaultPeripheral, characteristics, defaultMeshName, defaultMeshPassword, defaultMeshKey, defaultSession).then((result) => {
       done('Should have fail ' + result);
     }).catch((result) => {
       assert.equal(awoxSend, 3, 'Not expected send times');

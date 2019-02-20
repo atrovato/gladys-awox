@@ -16,14 +16,21 @@ var index = proxyquire('../../index.js', {
 
 var state = null;
 var sails;
+var gladysSokcetEvent = false;
 
 describe('Gladys device index', function () {
 
   beforeEach(function () {
     state = null;
+    gladysSokcetEvent = false;
     gladys = {
       on: function (event, callback) {
         callback(state);
+      },
+      socket: {
+        emit: function () {
+          gladysSokcetEvent = true;
+        }
       }
     };
     sails = {
@@ -43,9 +50,9 @@ describe('Gladys device index', function () {
   it('Index is complete', function (done) {
     var result = index(sails);
     assert.equal(Object.keys(result).length, 2, 'Not expected size');
-    assert.isOk(result.setup, 'Setup is expected');
     assert.isOk(result.exec, 'Exec is expected');
     assert.isNotOk(shared.bluetoothOn, 'Not expected bluetooth state');
+    assert.isNotOk(gladysSokcetEvent, 'No socket event expected');
     done();
   });
 
@@ -53,9 +60,9 @@ describe('Gladys device index', function () {
     var result = index(sails);
     nobleMock.emit('stateChange', 'poweredOn');
     assert.equal(Object.keys(result).length, 2, 'Not expected size');
-    assert.isOk(result.setup, 'Setup is expected');
     assert.isOk(result.exec, 'Exec is expected');
     assert.isOk(shared.bluetoothOn, 'Not expected bluetooth state');
+    assert.isOk(gladysSokcetEvent, 'Socket event expected');
     done();
   });
 
@@ -65,9 +72,9 @@ describe('Gladys device index', function () {
     var result = index(sails);
     nobleMock.emit('stateChange', 'poweredOff');
     assert.equal(Object.keys(result).length, 2, 'Not expected size');
-    assert.isOk(result.setup, 'Setup is expected');
     assert.isOk(result.exec, 'Exec is expected');
     assert.isNotOk(shared.bluetoothOn, 'Not expected bluetooth state');
+    assert.isOk(gladysSokcetEvent, 'Socket event expected');
     done();
   });
 
@@ -77,9 +84,9 @@ describe('Gladys device index', function () {
     var result = index(sails);
     nobleMock.emit('stateChange', 'unknown');
     assert.equal(Object.keys(result).length, 2, 'Not expected size');
-    assert.isOk(result.setup, 'Setup is expected');
     assert.isOk(result.exec, 'Exec is expected');
     assert.isOk(shared.bluetoothOn, 'Not expected bluetooth state');
+    assert.isOk(gladysSokcetEvent, 'Socket event expected');
     done();
   });
 
@@ -89,9 +96,9 @@ describe('Gladys device index', function () {
     var result = index(sails);
     nobleMock.emit('stateChange', 'unknown');
     assert.equal(Object.keys(result).length, 2, 'Not expected size');
-    assert.isOk(result.setup, 'Setup is expected');
     assert.isOk(result.exec, 'Exec is expected');
     assert.isNotOk(shared.bluetoothOn, 'Not expected bluetooth state');
+    assert.isOk(gladysSokcetEvent, 'Socket event expected');
     done();
   });
 

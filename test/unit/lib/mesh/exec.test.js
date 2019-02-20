@@ -75,6 +75,14 @@ describe('Gladys mesh device exec', function () {
     generateStep = false;
     sendStep = false;
     packetStep = false;
+
+    gladys = {
+      param: {
+        getValue: function () {
+          return Promise.resolve();
+        }
+      }
+    };
   });
 
   it('Fail at auth step', function (done) {
