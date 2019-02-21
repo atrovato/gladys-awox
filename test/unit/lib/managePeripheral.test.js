@@ -218,6 +218,13 @@ describe('Gladys peripheral as device manager', function () {
     genericValidTest(done, constructorName, deviceName, expectedCreatedDevice);
   });
 
+  it('Valid test [AWOX\\u0000 ; mesh device #2] (utf-8)', function (done) {
+    var constructorName = 'AWOX\u0000';
+    var deviceName = 'ESMLm';
+    var expectedCreatedDevice = generateDevice(deviceName, true, false);
+    genericValidTest(done, constructorName, deviceName, expectedCreatedDevice);
+  });
+
   it('Valid test [AWOX\\u0000 ; color device (lower)] (utf-8)', function (done) {
     var constructorName = 'AWOX\u0000';
     var deviceName = 'sml-cLDZAFE';
