@@ -37,9 +37,9 @@ describe('Gladys peripheral as device manager', function () {
 
     gladys = {
       device: {
-        get: function () {
+        getByIdentifier: function () {
           gladysDeviceGet = true;
-          return Promise.resolve([]);
+          return Promise.reject();
         }
       }
     };
@@ -137,7 +137,6 @@ describe('Gladys peripheral as device manager', function () {
           protocol: remoteDevice ? 'bluetooth-remote' : meshDevice ? 'bluetooth-mesh' : 'bluetooth'
         },
         remote: remoteDevice,
-        alreadyExists: false,
         types: remoteDevice ? [] : types
       };
 
@@ -215,6 +214,13 @@ describe('Gladys peripheral as device manager', function () {
   it('Valid test [AWOX\\u0000 ; mesh device] (utf-8)', function (done) {
     var constructorName = 'AWOX\u0000';
     var deviceName = 'SMLm';
+    var expectedCreatedDevice = generateDevice(deviceName, true, false);
+    genericValidTest(done, constructorName, deviceName, expectedCreatedDevice);
+  });
+
+  it('Valid test [AWOX\\u0000 ; mesh device #2] (utf-8)', function (done) {
+    var constructorName = 'AWOX\u0000';
+    var deviceName = 'ESMLm';
     var expectedCreatedDevice = generateDevice(deviceName, true, false);
     genericValidTest(done, constructorName, deviceName, expectedCreatedDevice);
   });
