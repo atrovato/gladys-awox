@@ -1,7 +1,6 @@
 const noble = require('noble');
 const shared = require('./lib/shared.js');
 const exec = require('./lib/exec.js');
-const install = require('./lib/install.js');
 const AwoxController = require('./controller/AwoxController.js');
 const AwoxControllerUtils = require('./controller/AwoxControllerUtils.js');
 
