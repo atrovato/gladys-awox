@@ -55,17 +55,6 @@ describe('Gladys peripheral as device manager', function () {
         min: 0,
         max: 1,
         display: true
-      },
-      {
-        type: 'brightness',
-        nameSuffix: ' - brightness',
-        identifier: 'brightness',
-        sensor: false,
-        category: 'light',
-        min: shared.values.brightness.display.min,
-        max: shared.values.brightness.display.max,
-        unit: shared.values.brightness.display.unit,
-        display: true
       }];
 
       if (colorDevice) {
@@ -89,6 +78,18 @@ describe('Gladys peripheral as device manager', function () {
             category: 'light',
             min: 0,
             max: 1,
+            display: true
+          });
+        } else {
+          types.push({
+            type: 'color_brightness',
+            nameSuffix: ' - color brightness',
+            identifier: 'color_brightness',
+            sensor: false,
+            category: 'light',
+            min: shared.values.brightness.display.min,
+            max: shared.values.brightness.display.max,
+            unit: shared.values.brightness.display.unit,
             display: true
           });
         }
@@ -116,6 +117,18 @@ describe('Gladys peripheral as device manager', function () {
           max: 1,
           display: false
         });
+
+        types.push({
+          type: 'white_brightness',
+          nameSuffix: ' - white brightness',
+          identifier: 'white_brightness',
+          sensor: false,
+          category: 'light',
+          min: shared.values.brightness.display.min,
+          max: shared.values.brightness.display.max,
+          unit: shared.values.brightness.display.unit,
+          display: true
+        });
       } else {
         types.push({
           type: 'push',
@@ -125,6 +138,18 @@ describe('Gladys peripheral as device manager', function () {
           category: 'light',
           min: 0,
           max: 1,
+          display: true
+        });
+
+        types.push({
+          type: 'brightness',
+          nameSuffix: ' - brightness',
+          identifier: 'brightness',
+          sensor: false,
+          category: 'light',
+          min: shared.values.brightness.display.min,
+          max: shared.values.brightness.display.max,
+          unit: shared.values.brightness.display.unit,
           display: true
         });
       }
