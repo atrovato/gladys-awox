@@ -80,6 +80,9 @@ describe('Gladys mesh device exec', function () {
       param: {
         getValue: function () {
           return Promise.resolve();
+        },
+        delete: function () {
+          return Promise.resolve();
         }
       }
     };
@@ -148,6 +151,20 @@ describe('Gladys mesh device exec', function () {
 
   it('Exec success', function (done) {
     executor.exec(peripheral, characteristics)
+      .then(() => {
+        assert.isOk(authStep, 'Should be passed by auth step');
+        assert.isOk(generateStep, 'Should be passed by scan step');
+        assert.isOk(packetStep, 'Should be passed by packet step');
+        assert.isOk(sendStep, 'Should be passed by send step');
+        done();
+      }).catch(() => {
+        done('Should not have fail');
+      });
+  });
+
+  
+  it('Exec reset success', function (done) {
+    executor.exec(peripheral, characteristics, 'reset', 'value')
       .then(() => {
         assert.isOk(authStep, 'Should be passed by auth step');
         assert.isOk(generateStep, 'Should be passed by scan step');
