@@ -108,7 +108,7 @@
                                 <label for="user" class="col-sm-3 control-label"><%= __('User') %></label>
                                 <div class="col-sm-9">
                                     <input type="text" placeholder="<%= __('User') %>" class="form-control"
-                                        ng-model="vm.selectedDevice.auth.name" id="user" />
+                                        ng-model="vm.selectedDevice.auth.name" id="user" maxlength="16" />
                                 </div>
                             </div>
 
@@ -116,7 +116,7 @@
                                 <label for="password" class="col-sm-3 control-label"><%= __('Password') %></label>
                                 <div class="col-sm-9">
                                     <input type="text" placeholder="<%= __('Password') %>" class="form-control"
-                                        ng-model="vm.selectedDevice.auth.pass" id="password" />
+                                        ng-model="vm.selectedDevice.auth.pass" id="password" maxlength="16" />
                                 </div>
                             </div>
 
