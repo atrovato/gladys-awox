@@ -46,7 +46,7 @@ And fill all information about the device.
 Following devices have been tested :
  * SmartLIGHT c7 : on/off, brightness, color
  * SmartLIGHT w9 : on/off, brightness
- * SmartLIGHT Mesh color : on/off, brightness, ~~color~~
+ * SmartLIGHT Mesh color : on/off, brightness, color
 
 ## Awaited functionalities
  - [x] Swith on/off
@@ -56,6 +56,13 @@ Following devices have been tested :
  - [x] Manage ligth intensity
  - [x] Reset default light state
  - [ ] White color (from cold to hot)
+ - [ ] Feedback / status state
 
 ## Limitations
  - Do not work when [Gladys-bluetooth](https://github.com/GladysProject/gladys-bluetooth) is enabled
+
+## More
+
+Translated for Python [Leiaz Python AwoX Mesh Light project](https://github.com/Leiaz/python-awox-mesh-light) to Javascript.
+
+Thanks to [Leiaz](https://github.com/Leiaz).
