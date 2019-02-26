@@ -39,9 +39,11 @@ module.exports = {
       remote: data.remote,
       remoteId: data.remoteId
     };
+    data.auth = data.auth || { name: '', pass: '' };
 
-    determineCredentials(data.device.identifier, remoteInformation).then((credentials) => {
+    determineCredentials(data.device, remoteInformation, data.auth).then((credentials) => {
       remoteInformation.credentials = credentials;
+      console.error('credentials', credentials, data.auth);
 
       return meshPair(data.device.identifier, remoteInformation, data.auth.name, data.auth.pass).then(() => {
         const paramAddress = data.device.identifier.replace(/:/gi, '_');

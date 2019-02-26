@@ -79,7 +79,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row">
+                            <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth-remote'">
                                 <label class="col-sm-3 control-label"><%= __('Action') %></label>
                                 <div class="col-sm-9">
                                     <div class="form-check" ng-repeat="deviceType in vm.selectedDevice.types">
@@ -98,13 +98,13 @@
                             <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol != 'bluetooth-mesh'">
                                 <label for="selectRemote" class="col-sm-3 control-label"><%= __('Remote') %></label>
                                 <div class="col-sm-9">
-                                    <select name="selectRemote" id="selectRemote" class="form-control" ng-model="vm.selectedDevice.remoteId">
-                                        <option ng-repeat="remote in vm.remotes" ng-value="remote.identifier">{{remote.name}} - {{remote.identifier}}</option>
+                                    <select name="selectRemote" id="selectRemote" class="form-control" ng-model="vm.selectedDevice.remoteId"
+                                        ng-options="remote.identifier as (remote.name + ' - ' + remote.identifier) for remote in vm.remotes track by remote.identifier">
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth'">
+                            <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth' || vm.selectedDevice.remoteId">
                                 <label for="user" class="col-sm-3 control-label"><%= __('User') %></label>
                                 <div class="col-sm-9">
                                     <input type="text" placeholder="<%= __('User') %>" class="form-control"
@@ -112,7 +112,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth'">
+                            <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth' || vm.selectedDevice.remoteId">
                                 <label for="password" class="col-sm-3 control-label"><%= __('Password') %></label>
                                 <div class="col-sm-9">
                                     <input type="text" placeholder="<%= __('Password') %>" class="form-control"
