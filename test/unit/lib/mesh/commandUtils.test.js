@@ -16,6 +16,7 @@ describe('Gladys AwoX Mesh utilities', function () {
 
     assert.equal(4, rand41.length, 'Incorrect expected size');
     assert.equal(4, rand42.length, 'Incorrect expected size');
+    assert.deepEqual(rand42, Buffer.from(rand42.toString('hex'), 'hex'), 'Incorrect expected value');
     assert.notDeepEqual(rand41, rand42, 'Random bytes should not be the same');
     done();
   });

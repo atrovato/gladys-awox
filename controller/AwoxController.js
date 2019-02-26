@@ -39,8 +39,9 @@ module.exports = {
       remote: data.remote,
       remoteId: data.remoteId
     };
+    data.auth = data.auth || { name: '', pass: '' };
 
-    determineCredentials(data.device.identifier, remoteInformation).then((credentials) => {
+    determineCredentials(data.device, remoteInformation, data.auth).then((credentials) => {
       remoteInformation.credentials = credentials;
 
       return meshPair(data.device.identifier, remoteInformation, data.auth.name, data.auth.pass).then(() => {
