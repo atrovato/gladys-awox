@@ -57,6 +57,7 @@
           vm.error = null;
           vm.mError = null;
           vm.progess = false;
+          loadRemotes();
           $('#modalMesh').modal('hide');
         });
       });
@@ -78,6 +79,10 @@
           vm.rooms.unshift({ id: null, name: '----' });
         });
 
+      loadRemotes();
+    }
+
+    function loadRemotes() {
       awoxService.getRemotes()
         .then(function (data) {
           vm.remotes = data.data;
