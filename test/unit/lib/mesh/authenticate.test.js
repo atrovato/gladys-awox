@@ -28,7 +28,7 @@ const meshUtilsMock = {
 
 const expectedSendCharacteristic = [shared.characteristics.pair, shared.characteristics.status];
 const expectedReadCharacteristic = [shared.characteristics.pair];
-const expectedCommands = [pairCommand, [0x01]];
+const expectedCommands = [pairCommand, [0x01, 0x00]];
 
 let awoxSend = 0;
 const awoxSendMock = function (peripheral, characteristic, command, writeWithoutResponse) {

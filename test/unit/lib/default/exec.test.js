@@ -3,6 +3,8 @@ const chai = require('chai');
 const assert = chai.assert;
 const Promise = require('bluebird');
 
+var disconnected = false;
+
 var sendStep = false;
 var generateStep = false;
 var failAtStep;
@@ -39,11 +41,15 @@ describe('Gladys default device exec', function () {
 
   beforeEach(function () {
     peripheral = {
-      address: 'MAC address'
+      address: 'MAC address',
+      disconnect: function () {
+        disconnected = true;
+      }
     };
     characteristics = new Map();
 
     failAtStep = undefined;
+    disconnected = false;
 
     generateStep = false;
     sendStep = false;
@@ -58,6 +64,7 @@ describe('Gladys default device exec', function () {
       }).catch(() => {
         assert.isOk(generateStep, 'Should be passed by scan step');
         assert.isNotOk(sendStep, 'Should not be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       });
   });
@@ -71,6 +78,7 @@ describe('Gladys default device exec', function () {
       }).catch(() => {
         assert.isOk(generateStep, 'Should be passed by scan step');
         assert.isOk(sendStep, 'Should be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       });
   });
@@ -80,6 +88,7 @@ describe('Gladys default device exec', function () {
       .then(() => {
         assert.isOk(generateStep, 'Should be passed by scan step');
         assert.isOk(sendStep, 'Should be passed by send step');
+        assert.isOk(disconnected, 'Should be passed by disconnect');
         done();
       }).catch(() => {
         done('Should not have fail');

@@ -3,6 +3,8 @@ const chai = require('chai');
 const assert = chai.assert;
 const Promise = require('bluebird');
 
+const meshShared = require('../../../../lib/mesh/shared.js');
+
 var sendStep = false;
 var generateStep = false;
 var authStep = false;
@@ -46,7 +48,9 @@ var packetMock = {
     if (failAtStep == 'packet') {
       return Promise.reject();
     } else {
-      return Promise.resolve(1);
+      const charMap = new Map();
+      charMap.set(meshShared.characteristics.status, { on: function () { } });
+      return Promise.resolve(charMap);
     }
   }
 };
@@ -162,7 +166,7 @@ describe('Gladys mesh device exec', function () {
       });
   });
 
-  
+
   it('Exec reset success', function (done) {
     executor.exec(peripheral, characteristics, 'reset', 'value')
       .then(() => {

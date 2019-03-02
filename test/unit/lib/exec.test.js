@@ -129,7 +129,6 @@ describe('Gladys device exec', function () {
     };
 
     foundPeripherals = undefined;
-    disconnected = false;
     failAtStep = undefined;
 
     scanStep = false;
@@ -277,7 +276,7 @@ describe('Gladys device exec', function () {
         assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
         assert.isNotOk(meshExecStep, 'Should not be passed by mesh step');
         assert.isOk(defaultExecStep, 'Should be passed by send step');
-        assert.isOk(disconnected, 'Should be passed by disconnect');
+        assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       }).catch((result) => {
         done('Should not have fail ' + result);
@@ -313,8 +312,8 @@ describe('Gladys device exec', function () {
         assert.isOk(servicesStep, 'Should be passed by services step');
         assert.isOk(characteristicsStep, 'Should be passed by characteristics step');
         assert.isOk(meshExecStep, 'Should be passed by mesh step');
-        assert.isNotOk(defaultExecStep, 'Should net be passed by send step');
-        assert.isOk(disconnected, 'Should be passed by disconnect');
+        assert.isNotOk(defaultExecStep, 'Should not be passed by send step');
+        assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       }).catch((result) => {
         done('Should not have fail ' + result);
