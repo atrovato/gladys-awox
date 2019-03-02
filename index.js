@@ -6,11 +6,11 @@ const AwoxControllerUtils = require('./controller/AwoxControllerUtils.js');
 
 module.exports = function (sails) {
   gladys.on('ready', function () {
+    // Check bluetooth state
     noble.on('stateChange', function (state) {
       if (state === 'poweredOn') {
         shared.bluetoothOn = true;
         sails.log.info('AwoX module: Bluetooth device available');
-
       } else if (state === 'poweredOff') {
         shared.bluetoothOn = false;
         shared.scanning = false;
