@@ -15,7 +15,7 @@ module.exports = function (sails) {
         shared.bluetoothOn = false;
         shared.scanning = false;
         if (shared.scanTimer) {
-          shared.scanTimer.unref();
+          clearTimeout(shared.scanTimer);
         }
         sails.log.warn('AwoX module: Bluetooth device not available');
         noble.stopScanning();

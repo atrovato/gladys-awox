@@ -2,6 +2,7 @@ const proxyquire = require('proxyquire');
 const EventEmitter = require('events');
 const chai = require('chai');
 const assert = chai.assert;
+const sinon = require('sinon');
 
 var shared = {
   bluetoothOn: false
@@ -14,11 +15,12 @@ var index = proxyquire('../../index.js', {
   './lib/shared.js': shared
 });
 
-var state = null;
-var sails;
-var gladysSokcetEvent = false;
-
 describe('Gladys device index', function () {
+
+  var state = null;
+  var sails;
+  var gladysSokcetEvent = false;
+  var clock;
 
   beforeEach(function () {
     state = null;
@@ -45,6 +47,11 @@ describe('Gladys device index', function () {
     };
 
     shared.bluetoothOn = false;
+    clock = sinon.useFakeTimers();
+  });
+
+  afterEach(function () {
+    clock.restore();
   });
 
   it('Index is complete', function (done) {
@@ -75,6 +82,20 @@ describe('Gladys device index', function () {
     assert.isOk(result.exec, 'Exec is expected');
     assert.isNotOk(shared.bluetoothOn, 'Not expected bluetooth state');
     assert.isOk(gladysSokcetEvent, 'Socket event expected');
+    done();
+  });
+
+  it('Bluetooth changes to OFF during scan', function (done) {
+    shared.bluetoothOn = true;
+    shared.scanTimer = setTimeout(done, 10000, 'Scan timeout should have been cancelled');
+
+    var result = index(sails);
+    nobleMock.emit('stateChange', 'poweredOff');
+    assert.equal(Object.keys(result).length, 2, 'Not expected size');
+    assert.isOk(result.exec, 'Exec is expected');
+    assert.isNotOk(shared.bluetoothOn, 'Not expected bluetooth state');
+    assert.isOk(gladysSokcetEvent, 'Socket event expected');
+    clock.tick(15000);
     done();
   });
 
