@@ -9,9 +9,9 @@ module.exports = {
   getModuleId: function () {
     return gladys.module.get()
       .then(modules => {
-        for (let module of modules) {
-          if (module.slug == 'awox') {
-            return Promise.resolve(module.id);
+        for (let m of modules) {
+          if (m.slug === 'awox') {
+            return Promise.resolve(m.id);
           }
         }
       });

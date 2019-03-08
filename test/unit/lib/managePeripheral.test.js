@@ -24,7 +24,7 @@ describe('Gladys peripheral as device manager', function () {
 
       managePeripheral(peripheral, valueMap)
         .then((result) => {
-          assert.isOk(gladysDeviceGet, 'Gladys should not have creted a device');
+          assert.isOk(gladysDeviceGet, 'Gladys should not have created a device');
           assert.deepEqual(result.device, expectedCreatedDevice.device, 'Not expected device created');
           assert.deepEqual(result.remote, expectedCreatedDevice.remote, 'Not expected remote created');
           assert.deepEqual(result.alreadyExists, expectedCreatedDevice.alreadyExists, 'Not expected alreadyExists created');
@@ -45,7 +45,7 @@ describe('Gladys peripheral as device manager', function () {
     };
 
     generateDevice = function (originalDeviceName, meshDevice = false, colorDevice = false, remoteDevice = false) {
-      var deviceName = originalDeviceName.toString('utf-8').replace('\u0000', '');
+      var deviceName = (originalDeviceName || '').toString('utf-8').replace('\u0000', '');
       const types = [{
         type: 'binary',
         nameSuffix: '',
@@ -282,6 +282,31 @@ describe('Gladys peripheral as device manager', function () {
     var constructorName = 'AWOX\u0000';
     var deviceName = 'RCUm-CKDHKFH';
     var expectedCreatedDevice = generateDevice(deviceName, true, true, true);
+    genericValidTest(done, constructorName, deviceName, expectedCreatedDevice);
+  });
+
+  it('Valid test [AWOX\\u0000 ; remote device] no name (utf-8)', function (done) {
+    var constructorName = 'AWOX\u0000';
+    var deviceName = undefined;
+    var expectedCreatedDevice = generateDevice(undefined, false, false, false);
+    genericValidTest(done, constructorName, deviceName, expectedCreatedDevice);
+  });
+
+  it('Valid test existing device', function (done) {
+    var constructorName = 'AWOX\u0000';
+    var deviceName = 'RCUm-CKDHKFH';
+    var expectedCreatedDevice = generateDevice(deviceName, true, true, true);
+    expectedCreatedDevice.alreadyExists = true;
+    expectedCreatedDevice.device.id = undefined;
+    expectedCreatedDevice.device.room = undefined;
+    expectedCreatedDevice.device.user = undefined;
+    expectedCreatedDevice.device.machine = undefined;
+
+    gladys.device.getByIdentifier = function (device) {
+      gladysDeviceGet = true;
+      return Promise.resolve(device);
+    };
+
     genericValidTest(done, constructorName, deviceName, expectedCreatedDevice);
   });
 

@@ -13,7 +13,7 @@ module.exports = {
   getRemotes: function (req, res, next) {
     gladys.device.getByService({ service: 'awox' }).then((devices) => {
       res.json(devices.filter(d => {
-        return d.protocol == 'bluetooth-remote';
+        return d.protocol === 'bluetooth-remote';
       }));
     });
   },
@@ -36,7 +36,6 @@ module.exports = {
   createMeshDevice: function (req, res, next) {
     const data = req.body;
     const remoteInformation = {
-      remote: data.remote,
       remoteId: data.remoteId
     };
     data.auth = data.auth || { name: '', pass: '' };
