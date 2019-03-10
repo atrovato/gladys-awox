@@ -92,4 +92,35 @@ describe('Discover bluetooth services', function () {
       done();
     });
   });
+
+  it('Discover service all already discovered', function (done) {
+    const tmpServices = [{uuid: 'fff2'}];
+    peripheral.services = tmpServices;
+    const expected = new Map();
+    expected.set('fff2', tmpServices[0]);
+
+    awoxDiscoverServices(peripheral, ['fff2']).then((result) => {
+      assert.deepEqual(result, expected, 'Result should be same a input');
+      assert.isNotOk(peripheral.discovered, 'Discovered tag should be true');
+      done();
+    }).catch((e) => {
+      done('Should not have fail ' + e);
+    });
+  });
+
+  it('Discover service half already discovered', function (done) {
+    const tmpServices = [{uuid: 'fff2'}];
+    peripheral.services = tmpServices;
+    const expected = new Map();
+    expected.set('fff2', tmpServices[0]);
+    expected.set(service.uuid, service);
+
+    awoxDiscoverServices(peripheral, ['fff0', 'fff2']).then((result) => {
+      assert.deepEqual(result, expected, 'Result should be same a input');
+      assert.isOk(peripheral.discovered, 'Discovered tag should be true');
+      done();
+    }).catch((e) => {
+      done('Should not have fail ' + e);
+    });
+  });
 });
