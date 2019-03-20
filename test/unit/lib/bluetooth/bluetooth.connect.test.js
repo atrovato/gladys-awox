@@ -93,4 +93,17 @@ describe('Connect bluetooth peripherals', function () {
       done();
     });
   });
+
+  
+  it('Connect to peripheral already connected', function (done) {
+    peripheral.state = 'connected';
+
+    awoxConnect(peripheral).then((result) => {
+      assert.equal(result, peripheral, 'Should be the same as input');
+      assert.isNotOk(peripheral.connected, 'Connected tag not should be true');
+      done();
+    }).catch((e) => {
+      done('Should not have fail ' + e);
+    });
+  });
 });

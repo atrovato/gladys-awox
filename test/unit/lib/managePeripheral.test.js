@@ -1,6 +1,5 @@
 const chai = require('chai');
 const assert = chai.assert;
-const shared = require('../../../lib/shared.js');
 
 var gladysDeviceGet = false;
 
@@ -64,8 +63,8 @@ describe('Gladys peripheral as device manager', function () {
           identifier: 'color',
           sensor: false,
           category: 'light',
-          min: shared.values.color.min,
-          max: shared.values.color.max,
+          min: 0,
+          max: 16777215,
           display: true
         });
 
@@ -87,9 +86,9 @@ describe('Gladys peripheral as device manager', function () {
             identifier: 'color_brightness',
             sensor: false,
             category: 'light',
-            min: shared.values.brightness.display.min,
-            max: shared.values.brightness.display.max,
-            unit: shared.values.brightness.display.unit,
+            min: 0,
+            max: 100,
+            unit: '%',
             display: true
           });
         }
@@ -124,9 +123,9 @@ describe('Gladys peripheral as device manager', function () {
           identifier: 'white_brightness',
           sensor: false,
           category: 'light',
-          min: shared.values.brightness.display.min,
-          max: shared.values.brightness.display.max,
-          unit: shared.values.brightness.display.unit,
+          min: 0,
+          max: 100,
+          unit: '%',
           display: true
         });
       } else {
@@ -147,9 +146,9 @@ describe('Gladys peripheral as device manager', function () {
           identifier: 'brightness',
           sensor: false,
           category: 'light',
-          min: shared.values.brightness.display.min,
-          max: shared.values.brightness.display.max,
-          unit: shared.values.brightness.display.unit,
+          min: 0,
+          max: 100,
+          unit: '%',
           display: true
         });
       }

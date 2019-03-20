@@ -191,4 +191,73 @@ describe('Gladys AwoX Mesh utilities', function () {
     assert.deepEqual(commandPacket, expected, 'Invalid checksum');
     done();
   });
+
+  it('Decrypt packet', function (done) {
+    const sessionKey = [0x45, 0x96, 0xf2, 0xb9, 0xa6, 0x31, 0x52, 0x74, 0x4f, 0xae, 0x9b, 0xd, 0xe7, 0x34, 0xca, 0x48];
+    const address = 'a4:c1:38:04:59:d6';
+
+    const commandPacket = [0x00, 0x01, 0x02, 0x03, 0x04, 0xAA, 0x07];
+    commandUtils.checksum = function () {
+      return Buffer.from([0xAA]);
+    };
+
+    commandUtils.decryptPacket(sessionKey, address, Buffer.from(commandPacket)).then((decryptedPacket) => {
+      assert.deepEqual(decryptedPacket, Buffer.from(commandPacket), 'Invalid decryptPacket');
+      done();
+    }).catch((e) => {
+      done('Should not have fail ' + e);
+    });
+  });
+
+  it('Decrypt invalid packet', function (done) {
+    const sessionKey = [0x45, 0x96, 0xf2, 0xb9, 0xa6, 0x31, 0x52, 0x74, 0x4f, 0xae, 0x9b, 0xd, 0xe7, 0x34, 0xca, 0x48];
+    const address = 'a4:c1:38:04:59:d6';
+
+    const commandPacket = [0x00, 0x01, 0x02, 0x03, 0x04, 0xAA, 0x07];
+    commandUtils.checksum = function () {
+      return Buffer.from([0xFF]);
+    };
+
+    commandUtils.decryptPacket(sessionKey, address, Buffer.from(commandPacket)).then(() => {
+      done('Should have fail');
+    }).catch((e) => {
+      assert.equal('Invalid checksum from received data', e, 'Invalid error message');
+      done();
+    });
+  });
+
+  it('Decode invalid packet', function (done) {
+    const packet = new Array(18).fill(0x00);
+    commandUtils.decodePacket(Buffer.from(packet)).then(() => {
+      done('Should have fail');
+    }).catch((e) => {
+      assert.equal('Invalid message type from received data 0', e, 'Invalid error message');
+      done();
+    });
+  });
+
+  it('Decode packet', function (done) {
+    const packet = new Array(18).fill(0x00);
+    packet[7] = 0xDC;
+    packet[12] = 0x01;
+    packet[14] = 0x32;
+    packet[13] = 0x4B;
+    packet[16] = 0x2F;
+    packet[17] = 0x32;
+    packet[18] = 0x9F;
+    packet[15] = 0x64;
+    
+    commandUtils.decodePacket(Buffer.from(packet)).then((result) => {
+      const expected = [];
+      expected['switch'] = 1;
+      expected['white_temperature'] = 50;
+      expected['white_brightness'] = 75;
+      expected['color'] = 3093151;
+      expected['color_brightness'] = 100;
+      assert.deepEqual(result, expected, 'Invalid decoded message');
+      done();
+    }).catch((e) => {
+      done('Should not have fail ' + e);
+    });
+  });
 });

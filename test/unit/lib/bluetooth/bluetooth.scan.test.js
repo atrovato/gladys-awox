@@ -220,4 +220,54 @@ describe('Scan bluetooth peripherals', function () {
     clock.tick(50);
     nobleMock.emit('discover', { address: 'Peripheral 12' });
   });
+
+  it('Bluetooth looks for 1 wanted device, already in cache', function (done) {
+    var requestPeripherals = new Map();
+    requestPeripherals.set('Peripheral 4', { address: 'Peripheral 4' });
+    nobleMock._peripherals = [];
+    nobleMock._peripherals['Peripheral 4'] = { address: 'Peripheral 4' };
+
+    awoxScan(requestPeripherals).then((result) => {
+      assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
+      assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
+      assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
+      assert.isNotOk(shared.scanning, 'Scanner timeout should have be cleared');
+      assert.equal(0, shared.scanForNb, 'No other peripheral waited anymore');
+
+      var expectedResult = new Map();
+      expectedResult.set('Peripheral 4', { address: 'Peripheral 4' });
+      assert.deepEqual(result, expectedResult, 'Not expected devices found');
+      done();
+    }).catch((result) => {
+      done('Should not have fail : ' + result);
+    });
+  });
+
+  it('Bluetooth looks for 2 wanted devices, only one in cache', function (done) {
+    var requestPeripherals = new Map();;
+    requestPeripherals.set('Peripheral 8', { address: 'Peripheral 8' });
+    requestPeripherals.set('Peripheral 9', { address: 'Peripheral 9' });
+    nobleMock._peripherals = [];
+    nobleMock._peripherals['Peripheral 9'] = { address: 'Peripheral 9' };
+
+    awoxScan(requestPeripherals).then((result) => {
+      assert.isOk(shared.bluetoothOn, 'Bluetooth should stay ON');
+      assert.equal(nobleMock.listenerCount('stopScan'), 0, 'No listeners for stopScan should left');
+      assert.equal(nobleMock.listenerCount('discover'), 0, 'No listeners for discover should left');
+      assert.isNotOk(shared.scanning, 'Scanner timeout should have be cleared');
+      assert.equal(0, shared.scanForNb, 'No other peripheral waited anymore');
+
+      var expectedResult = new Map();
+      expectedResult.set('Peripheral 8', { address: 'Peripheral 8' });
+      expectedResult.set('Peripheral 9', { address: 'Peripheral 9' });
+      assert.deepEqual(result, expectedResult, 'Not expected devices found');
+      done();
+    }).catch((result) => {
+      done('Should not have fail : ' + result);
+    });
+
+    nobleMock.emit('discover', { address: 'Peripheral 7' });
+    nobleMock.emit('discover', { address: 'Peripheral 8' });
+    clock.tick(shared.scanTimeout);
+  });
 });
