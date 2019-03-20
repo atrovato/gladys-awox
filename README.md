@@ -56,10 +56,11 @@ Following devices have been tested :
  - [x] Manage ligth intensity
  - [x] Reset default light state
  - [ ] White color (from cold to hot)
- - [ ] Feedback / status state
+ - [x] Feedback / status state
 
 ## Limitations
  - Do not work when [Gladys-bluetooth](https://github.com/GladysProject/gladys-bluetooth) is enabled
+ - Original AwoX application not usable for Mesh devices
 
 ## More
 
