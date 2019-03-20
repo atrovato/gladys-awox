@@ -96,11 +96,11 @@ describe('Connect bluetooth peripherals', function () {
 
   
   it('Connect to peripheral already connected', function (done) {
-    peripheral.connected = 'true';
+    peripheral.state = 'connected';
 
     awoxConnect(peripheral).then((result) => {
       assert.equal(result, peripheral, 'Should be the same as input');
-      assert.isOk(peripheral.connected, 'Connected tag should be true');
+      assert.isNotOk(peripheral.connected, 'Connected tag not should be true');
       done();
     }).catch((e) => {
       done('Should not have fail ' + e);
