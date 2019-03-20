@@ -15,6 +15,7 @@ var translationsEN = {
   reset: 'Device reset (unpair)',
   color_brightness: 'Color brightness',
   white_brightness: 'White brightness',
+  white_temperature: 'White temperature',
   MESH_PAIR_DESCR: 'To be able to pair an AwoX Mesh device, be sure that the current device is unpaired and wait for it (red ligth).'
 };
 
@@ -35,6 +36,7 @@ var translationsFR = {
   reset: 'Remise à zéro du périphérique (unpair)',
   color_brightness: 'Intensité de la couleur',
   white_brightness: 'Intensité du blanc',
+  white_temperature: 'Température du blanc',
   MESH_PAIR_DESCR: 'Afin de lier correctement un périphérique AwoX Mesh, soyez sûr que celui-ci n\'est pas déjà appairé et qu\'il soit en attente de le dvenir (lumière rouge).'
 };
 
