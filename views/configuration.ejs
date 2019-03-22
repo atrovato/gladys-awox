@@ -36,9 +36,12 @@
                             <td>{{ deviceGroup.device.identifier }} </td>
                             <td>{{ deviceGroup.device.protocol }} </td>
                             <td>
-                                <button class=" btn btn-flat btn-info" data-toggle="modal" data-target=".mesh-modal"
+                                <button class="btn btn-flat btn-info" data-toggle="modal" data-target=".mesh-modal"
+                                    ng-hide="deviceGroup.alreadyExists"
                                     ng-click="vm.selectDevice(deviceGroup)"
                                     ng-disabled="vm.progress">{{ 'DEVICE_CONFIG' | translate }}</button>
+                                <button class="btn btn-flat btn-secondary" ng-hide="!deviceGroup.alreadyExists"
+                                    ng-disabled="vm.progress" disabled>{{ 'DEVICE_EXISTS' | translate }}</button>
                             </td>
                         </tr>
                     </tbody>
