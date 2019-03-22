@@ -95,7 +95,10 @@
                             </div>
 
                             <div class="row" ng-hide="vm.selectedDevice.device.protocol == 'bluetooth'">
-                                {{ MESH_PAIR_DESCR | translate }}
+                                <div class="col-xs-12">
+                                    <p>{{ 'MESH_PAIR_DESCR' | translate }}</p>
+                                    <p><a href="https://youtu.be/8ONHVmmGEBY" target="_blank">{{ 'AWOX_RESET_OFFICIAL_VIDEO' | translate }}</a></p>
+                                </div>
                             </div>
 
                             <div class="form-group row" ng-hide="vm.selectedDevice.device.protocol != 'bluetooth-mesh'">
