@@ -366,7 +366,7 @@ describe('Gladys generate AwoX command', function () {
     sliceIndex = 14;
 
     var type = 'white_reset';
-    var value = undefined;
+    var value = 100;
 
     generateCommand(macAddr, type, value)
       .then((command) => {
