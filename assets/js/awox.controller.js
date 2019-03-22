@@ -113,12 +113,12 @@
         });
     }
 
-    function createDevice(device) {
+    function createDevice(deviceGroup) {
       vm.progess = true;
-      updateTypesName(device);
-      deviceService.create(device).then(() => {
+      updateTypesName(deviceGroup);
+      deviceService.create(deviceGroup.device, deviceGroup.types).then(() => {
         vm.progess = false;
-        device.alreadyExists = true;
+        deviceGroup.alreadyExists = true;
         $('#modalMesh').modal('hide');
       }).catch((e) => {
         manageError(e);
