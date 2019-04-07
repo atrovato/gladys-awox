@@ -128,6 +128,18 @@ describe('Gladys peripheral as device manager', function () {
           unit: '%',
           display: true
         });
+
+        types.push({
+          type: 'white_temperature',
+          nameSuffix: ' - white temperature',
+          identifier: 'white_temperature',
+          sensor: false,
+          category: 'light',
+          min: 0,
+          max: 100,
+          unit: '%',
+          display: true
+        });
       } else {
         types.push({
           type: 'push',

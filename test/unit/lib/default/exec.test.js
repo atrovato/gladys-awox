@@ -64,7 +64,7 @@ describe('Gladys default device exec', function () {
       }).catch(() => {
         assert.isOk(generateStep, 'Should be passed by scan step');
         assert.isNotOk(sendStep, 'Should not be passed by send step');
-        assert.isOk(disconnected, 'Should be passed by disconnect');
+        assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       });
   });
@@ -78,7 +78,7 @@ describe('Gladys default device exec', function () {
       }).catch(() => {
         assert.isOk(generateStep, 'Should be passed by scan step');
         assert.isOk(sendStep, 'Should be passed by send step');
-        assert.isOk(disconnected, 'Should be passed by disconnect');
+        assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       });
   });
@@ -88,7 +88,7 @@ describe('Gladys default device exec', function () {
       .then(() => {
         assert.isOk(generateStep, 'Should be passed by scan step');
         assert.isOk(sendStep, 'Should be passed by send step');
-        assert.isOk(disconnected, 'Should be passed by disconnect');
+        assert.isNotOk(disconnected, 'Should not be passed by disconnect');
         done();
       }).catch(() => {
         done('Should not have fail');

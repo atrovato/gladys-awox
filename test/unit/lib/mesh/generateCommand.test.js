@@ -195,4 +195,74 @@ describe('Gladys generate AwoX command', function () {
         done();
       });
   });
+
+  it('Device identifier white temperature', function (done) {
+    var type = 'white_temperature';
+    var value = 100;
+
+    generateCommand(type, value)
+      .then((command) => {
+        const expectedCommand = { key: 0xf0, data: [0x7F] };
+        assert.deepEqual(command, expectedCommand, 'Not expected command sent');
+        done();
+      }).catch((result) => {
+        done('Should not have fail ' + result);
+      });
+  });
+
+  it('Device identifier white brightness', function (done) {
+    var type = 'white_brightness';
+    var value = 100;
+
+    generateCommand(type, value)
+      .then((command) => {
+        const expectedCommand = { key: 0xf1, data: [0x7F] };
+        assert.deepEqual(command, expectedCommand, 'Not expected command sent');
+        done();
+      }).catch((result) => {
+        done('Should not have fail ' + result);
+      });
+  });
+
+  it('Device identifier color brightness', function (done) {
+    var type = 'color_brightness';
+    var value = 100;
+
+    generateCommand(type, value)
+      .then((command) => {
+        const expectedCommand = { key: 0xf2, data: [0x7F] };
+        assert.deepEqual(command, expectedCommand, 'Not expected command sent');
+        done();
+      }).catch((result) => {
+        done('Should not have fail ' + result);
+      });
+  });
+
+  it('Device identifier reset', function (done) {
+    var type = 'reset';
+    var value = 100;
+
+    generateCommand(type, value)
+      .then((command) => {
+        const expectedCommand = { key: 0xe3, data: [0x00] };
+        assert.deepEqual(command, expectedCommand, 'Not expected command sent');
+        done();
+      }).catch((result) => {
+        done('Should not have fail ' + result);
+      });
+  });
+
+  it('Device identifier preset', function (done) {
+    var type = 'preset';
+    var value = 3;
+
+    generateCommand(type, value)
+      .then((command) => {
+        const expectedCommand = { key: 0xc8, data: [0x03] };
+        assert.deepEqual(command, expectedCommand, 'Not expected command sent');
+        done();
+      }).catch((result) => {
+        done('Should not have fail ' + result);
+      });
+  });
 });
