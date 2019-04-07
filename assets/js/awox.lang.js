@@ -29,7 +29,8 @@ var translationsEN = {
   white_temperature: 'White temperature',
   MESH_PAIR_TITLE: 'Pairing Mesh lights',
   MESH_PAIR_DESCR: 'To be able to pair an AwoX Mesh device, be sure that the current device is unpaired and wait for it (red ligth).',
-  AWOX_RESET_OFFICIAL_VIDEO: 'See official AwoX video'
+  AWOX_RESET_OFFICIAL_VIDEO: 'See official AwoX video',
+  SWITCH_ON_OFF: 'Switch ON / OFF'
 };
 
 var translationsFR = {
@@ -63,7 +64,8 @@ var translationsFR = {
   white_temperature: 'Température du blanc',
   MESH_PAIR_TITLE: 'Appairer les ampoules Mesh',
   MESH_PAIR_DESCR: 'Afin de lier correctement un périphérique AwoX Mesh, soyez sûr que celui-ci n\'est pas déjà appairé et qu\'il soit en attente de le devenir (lumière rouge).',
-  AWOX_RESET_OFFICIAL_VIDEO: 'Voir la vidéo officielle AwoX'
+  AWOX_RESET_OFFICIAL_VIDEO: 'Voir la vidéo officielle AwoX',
+  SWITCH_ON_OFF: 'Allumer / éteindre'
 };
 
 angular

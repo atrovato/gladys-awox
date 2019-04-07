@@ -167,17 +167,21 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-sm-2 col-sm-offset-10">
+                                <div class="col-sm-4 col-sm-offset-8">
                                     <button class="btn btn-flat btn-success"
                                         ng-hide="vm.selectedDevice.alreadyExists || vm.selectedDevice.device.protocol != 'bluetooth'"
                                         ng-click="vm.createDevice(vm.selectedDevice);"
                                         ng-disabled="vm.progress"><%= __('Create') %></button>
-                                    <button class="btn btn-flat btn-success"
-                                        ng-hide="!vm.selectedDevice.alreadyExists || vm.selectedDevice.device.protocol != 'bluetooth'"
-                                        ng-click="vm.updateDevice(vm.selectedDevice);"
-                                        ng-disabled="vm.progress"><%= __('Update') %></button>
                                     <button class="btn btn-flat btn-info"
-                                        ng-hide="vm.selectedDevice.device.protocol == 'bluetooth'"
+                                        ng-hide="!vm.selectedDevice.alreadyExists"
+                                        ng-click="vm.testDevice(vm.selectedDevice);"
+                                        ng-disabled="vm.progress">{{ 'SWITCH_ON_OFF' | translate }}</button>
+                                    <button class="btn btn-flat btn-success"
+                                        ng-hide="!vm.selectedDevice.alreadyExists"
+                                        ng-click="vm.updateDevice(vm.selectedDevice);"
+                                        ng-disabled="vm.progress"><%= __('Done') %></button>
+                                    <button class="btn btn-flat btn-info"
+                                        ng-hide="vm.selectedDevice.alreadyExists || vm.selectedDevice.device.protocol == 'bluetooth'"
                                         ng-click="vm.createMeshDevice(vm.selectedDevice)"
                                         ng-disabled="vm.progress"><%= __('Next') %></button>
                                 </div>

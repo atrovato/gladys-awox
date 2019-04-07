@@ -70,7 +70,9 @@ module.exports = {
             return gladys.param.setValue(param);
           }).then(() => {
             return gladys.device.create(data);
-          }).then(() => {
+          }).then((deviceGroup) => {
+            data.device = deviceGroup.device;
+            data.type = deviceGroup.types;
             gladys.socket.emit('awoxPair', data);
           });
         });

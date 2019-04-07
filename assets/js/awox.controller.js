@@ -15,6 +15,7 @@
     vm.updateDevice = updateDevice;
     vm.selectDevice = selectDevice;
     vm.createMeshDevice = createMeshDevice;
+    vm.testDevice = testDevice;
 
     vm.scanning = false;
     vm.available = false;
@@ -52,13 +53,16 @@
         });
       });
 
-      io.socket.on('awoxPair', function () {
+      io.socket.on('awoxPair', function (data) {
         $scope.$apply(function () {
           vm.error = null;
           vm.mError = null;
           vm.progess = false;
+          vm.selectedDevice.device = data.device;
+          vm.selectedDevice.types = data.type;
+          vm.selectedDevice.alreadyExists = true;
+
           loadRemotes();
-          $('#modalMesh').modal('hide');
         });
       });
 
@@ -126,10 +130,10 @@
       });
     }
 
-    function updateDevice(device) {
+    function updateDevice(deviceGroup) {
       vm.progess = true;
-      updateTypesName(device);
-      deviceService.updateDevice(device).then(() => {
+      updateTypesName(deviceGroup);
+      deviceService.updateDevice(deviceGroup.device, deviceGroup.types).then(() => {
         vm.progess = false;
         $('#modalMesh').modal('hide');
       }).catch((e) => {
@@ -141,9 +145,7 @@
     function createMeshDevice(device) {
       vm.progess = true;
       updateTypesName(device);
-      awoxService.createDevice(device).then(() => {
-        vm.progess = false;
-      }).catch((e) => {
+      awoxService.createDevice(device).catch((e) => {
         manageError(e);
         vm.progess = false;
       });
@@ -156,6 +158,24 @@
     function updateTypesName(deviceGroup) {
       deviceGroup.types.forEach(element => {
         element.name = deviceGroup.device.name + element.nameSuffix;
+      });
+    }
+
+    function testDevice(deviceGroup) {
+      vm.progess = true;
+      var switchType = deviceGroup.types.filter((type) => {
+        return type.identifier == 'switch';
+      });
+
+      switchType.forEach(element => {
+        return deviceService.exec(element, (!element.lastValue ? 1 : (element.lastValue + 1) % 2))
+          .then(function(data){
+            element.lastValue = data.data.value; 
+            vm.progess = false;
+          }).catch(function(e){
+            manageError(e);
+            vm.progess = false;
+          });
       });
     }
 
