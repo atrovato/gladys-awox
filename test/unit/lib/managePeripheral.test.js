@@ -96,6 +96,17 @@ describe('Gladys peripheral as device manager', function () {
 
       if (meshDevice) {
         types.push({
+          type: 'mode',
+          nameSuffix: ' - mode',
+          identifier: 'mode',
+          sensor: true,
+          category: 'light',
+          min: 1,
+          max: 3,
+          display: false
+        });
+
+        types.push({
           type: 'preset',
           nameSuffix: ' - color sequence',
           identifier: 'preset',
